@@ -77,7 +77,15 @@ fi
 
 # Support optional custom target: ./run_suite.sh [target_directory_or_flow] [output_report]
 TARGET="${1}"
-if [ -n "$TARGET" ]; then
+if [ -z "$TARGET" ] || [ "$TARGET" = ".maestro/regression_suite.yaml" ]; then
+  OUTPUT_REPORT="${REPORTS_DIR}/regression_suite_report.html"
+  FLOW_FILES=$(awk '/runFlow:/ {gsub(/\.\.\//, ""); print $NF}' .maestro/regression_suite.yaml | tr '\n' ' ')
+  if [ -z "$FLOW_FILES" ]; then
+    echo "Error: No flow files found in .maestro/regression_suite.yaml"
+    exit 1
+  fi
+  SUITE_TARGET="$FLOW_FILES"
+else
   if [ -n "$2" ]; then
     OUTPUT_REPORT="$2"
     if [[ "$OUTPUT_REPORT" != *"/"* ]]; then
@@ -88,14 +96,6 @@ if [ -n "$TARGET" ]; then
     OUTPUT_REPORT="${REPORTS_DIR}/${CLEAN_NAME}_suite_report.html"
   fi
   SUITE_TARGET="$TARGET"
-else
-  # Extract individual flow files from .maestro/regression_suite.yaml for multi-flow reporting
-  FLOW_FILES=$(awk '/runFlow:/ {gsub(/\.\.\//, ""); print $NF}' .maestro/regression_suite.yaml | tr '\n' ' ')
-  if [ -z "$FLOW_FILES" ]; then
-    echo "Error: No flow files found in .maestro/regression_suite.yaml"
-    exit 1
-  fi
-  SUITE_TARGET="$FLOW_FILES"
 fi
 
 echo "=========================================================="

@@ -8,9 +8,75 @@ on:
   workflow_dispatch:
     inputs:
       target_flow:
-        description: 'Target flow file or directory (e.g. flows/lain_lain/ or .maestro/regression_suite.yaml)'
-        required: false
-        default: 'flows/lain_lain/toko_online/toko_online_link_qr_flow.yaml'
+        description: 'Select test flow, module directory, or full regression suite'
+        required: true
+        type: choice
+        default: '.maestro/regression_suite.yaml'
+        options:
+          - '.maestro/regression_suite.yaml'
+          - 'flows/kasir/'
+          - 'flows/dashboard/'
+          - 'flows/atur_produk/'
+          - 'flows/daftar_pelanggan/'
+          - 'flows/daftar_pesanan/'
+          - 'flows/keuangan/'
+          - 'flows/usahaku/'
+          - 'flows/login/'
+          - 'flows/lain_lain/'
+          - 'flows/lain_lain/cetak_struk/'
+          - 'flows/lain_lain/toko_online/'
+          - 'flows/lain_lain/daftar_karyawan/'
+          - 'flows/lain_lain/multi_usaha/'
+          - 'flows/atur_produk/atur_produk_flow.yaml'
+          - 'flows/atur_produk/product_add_edit_all_fields_flow.yaml'
+          - 'flows/atur_produk/product_catalog_search_sort_flow.yaml'
+          - 'flows/atur_produk/product_category_management_flow.yaml'
+          - 'flows/atur_produk/product_create_variants_flow.yaml'
+          - 'flows/atur_produk/product_edit_history_delete_flow.yaml'
+          - 'flows/daftar_pelanggan/customer_debt_flow.yaml'
+          - 'flows/daftar_pelanggan/customer_management_flow.yaml'
+          - 'flows/daftar_pelanggan/customer_offline_flow.yaml'
+          - 'flows/daftar_pelanggan/daftar_pelanggan_smoke_flow.yaml'
+          - 'flows/daftar_pesanan/order_action_flow.yaml'
+          - 'flows/daftar_pesanan/order_period_filter_flow.yaml'
+          - 'flows/daftar_pesanan/order_queue_reset_flow.yaml'
+          - 'flows/daftar_pesanan/order_smoke_flow.yaml'
+          - 'flows/daftar_pesanan/order_status_filter_flow.yaml'
+          - 'flows/dashboard/daftar_pesanan_flow.yaml'
+          - 'flows/dashboard/filter_flow.yaml'
+          - 'flows/dashboard/open_close_store_flow.yaml'
+          - 'flows/dashboard/overview_flow.yaml'
+          - 'flows/kasir/cart_flow.yaml'
+          - 'flows/kasir/catalog_flow.yaml'
+          - 'flows/kasir/payment_cash_flow.yaml'
+          - 'flows/kasir/payment_methods_flow.yaml'
+          - 'flows/kasir/preorder_offline_sort_flow.yaml'
+          - 'flows/keuangan/keuangan_smoke_flow.yaml'
+          - 'flows/keuangan/saku_lainnya_flow.yaml'
+          - 'flows/keuangan/saku_utama_filter_flow.yaml'
+          - 'flows/keuangan/saku_utama_laporan_penjualan_flow.yaml'
+          - 'flows/keuangan/saku_utama_metode_pembayaran_flow.yaml'
+          - 'flows/keuangan/saku_utama_pajak_hutang_voucher_flow.yaml'
+          - 'flows/keuangan/saku_utama_pengeluaran_flow.yaml'
+          - 'flows/keuangan/saku_utama_penjualan_karyawan_flow.yaml'
+          - 'flows/keuangan/saku_utama_penjualan_produk_flow.yaml'
+          - 'flows/keuangan/saku_utama_rekap_transaksi_flow.yaml'
+          - 'flows/lain_lain/cetak_struk/cetak_struk_discount_flow.yaml'
+          - 'flows/lain_lain/cetak_struk/cetak_struk_preview_flow.yaml'
+          - 'flows/lain_lain/cetak_struk/cetak_struk_product_flow.yaml'
+          - 'flows/lain_lain/cetak_struk/cetak_struk_smoke_flow.yaml'
+          - 'flows/lain_lain/daftar_karyawan/karyawan_management_flow.yaml'
+          - 'flows/lain_lain/daftar_karyawan/karyawan_salary_payslip_flow.yaml'
+          - 'flows/lain_lain/multi_usaha/multi_usaha_branch_flow.yaml'
+          - 'flows/lain_lain/multi_usaha/multi_usaha_login_delete_flow.yaml'
+          - 'flows/lain_lain/multi_usaha/multi_usaha_modules_flow.yaml'
+          - 'flows/lain_lain/toko_online/online_store_setting_flow.yaml'
+          - 'flows/lain_lain/toko_online/toko_online_link_qr_flow.yaml'
+          - 'flows/lain_lain/toko_online/toko_online_settings_flow.yaml'
+          - 'flows/login/invalid_login_flow.yaml'
+          - 'flows/login/logout_flow.yaml'
+          - 'flows/login/valid_login_flow.yaml'
+          - 'flows/usahaku/open_close_store_flow.yaml'
       apk_path:
         description: 'Optional path to APK file (e.g. app-release.apk)'
         required: false
@@ -70,7 +136,7 @@ jobs:
 
       - name: Make Scripts Executable
         run: |
-          chmod +x run_detailed_test.sh run_suite.sh restore_internet.sh generate_ci_summary.py
+          chmod +x run_detailed_test.sh run_suite.sh restore_internet.sh generate_ci_summary.py download_apk.sh
 
       - name: Cache AVD Snapshot
         uses: actions/cache@v4
@@ -99,11 +165,10 @@ jobs:
             adb devices
             ./restore_internet.sh
 
-            # 2. Install APK if URL or path is provided
+            # 2. Install APK if URL (including Google Drive) or path is provided
             if [ -n "${{ inputs.apk_url }}" ]; then
-              echo "Downloading APK from URL..."
-              curl -fL -o app.apk "${{ inputs.apk_url }}"
-              adb install -r app.apk
+              echo "Downloading and installing APK from URL..."
+              ./download_apk.sh "${{ inputs.apk_url }}" app.apk
             elif [ -n "${{ inputs.apk_path }}" ] && [ -f "${{ inputs.apk_path }}" ]; then
               echo "Installing APK from path: ${{ inputs.apk_path }}..."
               adb install -r "${{ inputs.apk_path }}"
@@ -112,7 +177,7 @@ jobs:
             # 3. Resolve target flow
             TARGET="${{ inputs.target_flow }}"
             if [ -z "$TARGET" ]; then
-              TARGET="flows/lain_lain/toko_online/toko_online_link_qr_flow.yaml"
+              TARGET=".maestro/regression_suite.yaml"
             fi
 
             echo "=========================================================="

@@ -233,15 +233,26 @@ Add the following secrets under **Settings > Secrets and variables > Actions**:
 - `POSSAKU_PHONE_NUMBER`: Phone number used to log into the test environment.
 - `POSSAKU_PIN`: 6-digit PIN code used for authentication.
 
-### Manual Workflow Dispatch (Custom Targets)
-You can trigger any single flow or folder on-demand directly from the GitHub UI or via the GitHub CLI:
-```bash
-# Run a specific flow
-gh workflow run maestro_regression.yml -f target_flow="flows/lain_lain/toko_online/toko_online_link_qr_flow.yaml"
+### Manual Workflow Dispatch (Interactive Dropdown & CLI)
+When running the workflow manually from the GitHub UI (**Actions > Maestro Mobile Test Automation > Run workflow**), an interactive **Target Flow dropdown** is provided:
+- **Full Suite**: `.maestro/regression_suite.yaml` (All 50 flows across all modules)
+- **Module Folders**: `flows/kasir/`, `flows/dashboard/`, `flows/atur_produk/`, `flows/lain_lain/`, etc.
+- **Individual Scenarios**: Select any specific `.yaml` test flow from the list.
 
-# Run an entire feature module
+You can also trigger it from the command line using the GitHub CLI:
+```bash
+# Run the full regression suite (Default)
+gh workflow run maestro_regression.yml -f target_flow=".maestro/regression_suite.yaml"
+
+# Run a specific feature module
 gh workflow run maestro_regression.yml -f target_flow="flows/kasir/"
 
-# Run with an external pre-built APK download URL
-gh workflow run maestro_regression.yml -f target_flow="flows/lain_lain/" -f apk_url="https://example.com/builds/possaku-release.apk"
+# Run an individual scenario with an external APK from Google Drive
+gh workflow run maestro_regression.yml \
+  -f target_flow="flows/lain_lain/toko_online/toko_online_link_qr_flow.yaml" \
+  -f apk_url="https://drive.google.com/file/d/YOUR_FILE_ID/view?usp=sharing"
 ```
+
+> [!NOTE]
+> **Google Drive Requirements**:
+> If providing a Google Drive link, ensure the file sharing setting is set to **"Anyone with the link can view"** (public access). The workflow's `download_apk.sh` automatically bypasses virus scan confirmation prompts and validates the APK binary before installation.

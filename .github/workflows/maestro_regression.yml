@@ -1,10 +1,6 @@
 name: Maestro Mobile Test Automation
 
 on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
   workflow_dispatch:
     inputs:
       target_flow:
@@ -82,9 +78,9 @@ on:
         required: false
         default: ''
       apk_url:
-        description: 'Optional direct download URL for Possaku APK'
+        description: 'Direct download URL for Possaku APK (pre-filled with latest, editable)'
         required: false
-        default: ''
+        default: 'https://drive.google.com/file/d/1kVEWcPO4rLoDT3v6ZOHnJ3xxX4eNeBKB/view?usp=sharing'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -153,7 +149,7 @@ jobs:
 
       - name: Make Scripts Executable
         run: |
-          chmod +x run_detailed_test.sh run_suite.sh restore_internet.sh generate_ci_summary.py download_apk.sh
+          chmod +x run_detailed_test.sh run_suite.sh restore_internet.sh generate_ci_summary.py download_apk.sh run_ci.sh
 
       - name: Cache AVD Snapshot
         uses: actions/cache@v4
@@ -166,6 +162,10 @@ jobs:
 
       - name: Create AVD and Run Maestro Tests
         uses: reactivecircus/android-emulator-runner@v2
+        env:
+          APK_URL: ${{ inputs.apk_url }}
+          APK_PATH: ${{ inputs.apk_path }}
+          TARGET_FLOW: ${{ inputs.target_flow }}
         with:
           api-level: 30
           target: google_apis
@@ -174,35 +174,7 @@ jobs:
           ram-size: 4096M
           emulator-options: -no-window -no-snapshot -no-audio -no-boot-anim -camera-back none -camera-front none -gpu swiftshader_indirect
           disable-animations: true
-          script: |
-            export PATH="$HOME/.maestro/bin:$PATH"
-
-            # 1. Device check & online guarantee
-            echo "Connected Android devices on Linux runner:"
-            adb devices
-            ./restore_internet.sh
-
-            # 2. Install APK if URL (including Google Drive) or path is provided
-            if [ -n "${{ inputs.apk_url }}" ]; then
-              echo "Downloading and installing APK from URL..."
-              ./download_apk.sh "${{ inputs.apk_url }}" app.apk
-            elif [ -n "${{ inputs.apk_path }}" ] && [ -f "${{ inputs.apk_path }}" ]; then
-              echo "Installing APK from path: ${{ inputs.apk_path }}..."
-              adb install -r "${{ inputs.apk_path }}"
-            fi
-
-            # 3. Resolve target flow
-            TARGET="${{ inputs.target_flow }}"
-            if [ -z "$TARGET" ]; then
-              TARGET=".maestro/regression_suite.yaml"
-            fi
-
-            echo "=========================================================="
-            echo " Starting Maestro Test Execution in CI (Linux)"
-            echo " Target: $TARGET"
-            echo "=========================================================="
-
-            ./run_suite.sh "$TARGET"
+          script: ./run_ci.sh
 
       - name: Generate GitHub Actions Step Summary
         if: always()

@@ -33,30 +33,40 @@ if [[ "$URL" =~ drive\.google\.com ]]; then
 
   if [ -n "$FILE_ID" ]; then
     echo "Extracted File ID: $FILE_ID"
-    TARGET_URL="https://drive.google.com/uc?id=${FILE_ID}&export=download"
-  else
-    TARGET_URL="$URL"
+    # Attempt 1: Direct usercontent stream download with virus scan confirmation bypass
+    echo "Attempting direct download via Google Drive usercontent endpoint..."
+    curl -fSL --retry 3 "https://drive.usercontent.google.com/download?id=${FILE_ID}&export=download&confirm=t" -o "$OUTPUT" || true
   fi
 
-  # Prefer gdown for reliable Google Drive download of large files
-  if ! command -v gdown >/dev/null 2>&1; then
-    echo "Installing gdown for reliable Google Drive download..."
-    python3 -m pip install --quiet gdown || pip install --quiet gdown || true
+  # Attempt 2: If direct stream did not produce a valid file, use gdown
+  MAGIC_CHECK=$(head -c 2 "$OUTPUT" 2>/dev/null || true)
+  if [ ! -s "$OUTPUT" ] || [ "$MAGIC_CHECK" != "PK" ]; then
+    echo "Direct download not complete. Using gdown..."
+    rm -f "$OUTPUT"
+    if ! command -v gdown >/dev/null 2>&1; then
+      python3 -m pip install --quiet gdown || pip install --quiet gdown || true
+    fi
+
+    if command -v gdown >/dev/null 2>&1; then
+      if [ -n "$FILE_ID" ]; then
+        gdown --id "$FILE_ID" -O "$OUTPUT" || true
+      else
+        gdown "$URL" -O "$OUTPUT" || true
+      fi
+    fi
   fi
 
-  if command -v gdown >/dev/null 2>&1; then
-    echo "Downloading with gdown..."
-    gdown "$TARGET_URL" -O "$OUTPUT" --fuzzy
-  else
-    echo "gdown not available, falling back to curl with cookie handler..."
+  # Attempt 3: Cookie jar fallback
+  MAGIC_CHECK=$(head -c 2 "$OUTPUT" 2>/dev/null || true)
+  if [ ! -s "$OUTPUT" ] || [ "$MAGIC_CHECK" != "PK" ]; then
+    echo "Using cookie jar confirmation fallback..."
+    rm -f "$OUTPUT"
     COOKIE_JAR=$(mktemp)
-    # Step 1: Initial request to get cookies & confirmation token
-    CONFIRM=$(curl -s -c "$COOKIE_JAR" -L "$TARGET_URL" | sed -nE 's/.*confirm=([0-9a-zA-Z_]+).*/\1/p' | head -n 1)
+    CONFIRM=$(curl -s -c "$COOKIE_JAR" -L "https://drive.google.com/uc?id=${FILE_ID}&export=download" | sed -nE 's/.*confirm=([0-9a-zA-Z_]+).*/\1/p' | head -n 1)
     if [ -n "$CONFIRM" ]; then
-      echo "Passing confirmation token: $CONFIRM"
       curl -fSL -b "$COOKIE_JAR" "https://drive.google.com/uc?export=download&confirm=${CONFIRM}&id=${FILE_ID}" -o "$OUTPUT"
     else
-      curl -fSL -b "$COOKIE_JAR" "$TARGET_URL" -o "$OUTPUT"
+      curl -fSL -b "$COOKIE_JAR" "https://drive.google.com/uc?id=${FILE_ID}&export=download" -o "$OUTPUT"
     fi
     rm -f "$COOKIE_JAR"
   fi

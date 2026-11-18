@@ -125,13 +125,30 @@ jobs:
       - name: Install Maestro CLI
         run: |
           echo "Installing latest Maestro CLI on Linux..."
-          curl -FsSL "https://get.maestro.mobile.dev" | bash
+          export MAESTRO_DIR="$HOME/.maestro"
+          curl -fsSL "https://get.maestro.mobile.dev" | bash || true
+
+          # Fallback: if script did not install binary, download direct from GitHub release
+          if [ ! -f "$HOME/.maestro/bin/maestro" ]; then
+            echo "Installing via direct GitHub release archive..."
+            mkdir -p /tmp/maestro_dl "$HOME/.maestro"
+            curl -fSL --retry 3 "https://github.com/mobile-dev-inc/maestro/releases/latest/download/maestro.zip" -o /tmp/maestro_dl/maestro.zip
+            unzip -qo /tmp/maestro_dl/maestro.zip -d /tmp/maestro_dl
+            cp -rf /tmp/maestro_dl/maestro/* "$HOME/.maestro/"
+            rm -rf /tmp/maestro_dl
+          fi
+
+          # Ensure execute permissions
+          chmod +x "$HOME/.maestro/bin/maestro" || true
+
+          # Make available system-wide via /usr/local/bin symlink and GITHUB_PATH
+          sudo ln -sf "$HOME/.maestro/bin/maestro" /usr/local/bin/maestro
           echo "$HOME/.maestro/bin" >> $GITHUB_PATH
           echo "MAESTRO_PATH=$HOME/.maestro/bin" >> $GITHUB_ENV
 
       - name: Verify Maestro Installation
         run: |
-          export PATH="$HOME/.maestro/bin:$PATH"
+          which maestro
           maestro --version
 
       - name: Make Scripts Executable

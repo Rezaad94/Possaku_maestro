@@ -1,0 +1,124 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - pesanan
+  - order-period-filter
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/daftar_pesanan/daftar_pesanan_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Dismiss onboarding dialog if visible
+- tapOn:
+    text: "Mengerti"
+    optional: true
+
+# [SETUP] Open Daftar Pesanan
+- tapOn:
+    point: "540, 1490"
+- runFlow:
+    when:
+      visible: ".*transaksi aktif.*"
+    commands:
+      - back
+- assertVisible: "${output.daftar_pesanan_page.headerTitle}"
+
+# [ORDER-08] Filter Tahun ini
+- tapOn:
+    point: "${output.daftar_pesanan_page.filterPeriodeButtonPoint}"
+- assertVisible: "${output.daftar_pesanan_page.filterPeriodeTitle}"
+- swipe:
+    start: "85%,25%"
+    end: "15%,25%"
+- tapOn:
+    point: "${output.daftar_pesanan_page.filterChipTahunIniPoint}"
+- tapOn:
+    point: "${output.daftar_pesanan_page.terapkanFilterPoint}"
+- assertVisible: "${output.daftar_pesanan_page.headerTitle}"
+
+# [ORDER-09] Filter Tahun lalu
+- tapOn:
+    point: "${output.daftar_pesanan_page.filterPeriodeButtonPoint}"
+- assertVisible: "${output.daftar_pesanan_page.filterPeriodeTitle}"
+- swipe:
+    start: "85%,25%"
+    end: "15%,25%"
+- tapOn:
+    text: "${output.daftar_pesanan_page.filterChipTahunLalu}"
+    optional: true
+- tapOn:
+    point: "${output.daftar_pesanan_page.terapkanFilterPoint}"
+- assertVisible: "${output.daftar_pesanan_page.headerTitle}"
+
+# [ORDER-10] Filter bulan lalu
+- tapOn:
+    point: "${output.daftar_pesanan_page.filterPeriodeButtonPoint}"
+- assertVisible: "${output.daftar_pesanan_page.filterPeriodeTitle}"
+- swipe:
+    start: "85%,25%"
+    end: "15%,25%"
+- tapOn:
+    text: "${output.daftar_pesanan_page.filterChipBulanLalu}"
+    optional: true
+- tapOn:
+    point: "${output.daftar_pesanan_page.terapkanFilterPoint}"
+- assertVisible: "${output.daftar_pesanan_page.headerTitle}"
+
+# [ORDER-11] Filter bulan ini
+- tapOn:
+    point: "${output.daftar_pesanan_page.filterPeriodeButtonPoint}"
+- assertVisible: "${output.daftar_pesanan_page.filterPeriodeTitle}"
+- swipe:
+    start: "85%,25%"
+    end: "15%,25%"
+- tapOn:
+    text: "${output.daftar_pesanan_page.filterChipBulanIni}"
+    optional: true
+- tapOn:
+    point: "${output.daftar_pesanan_page.terapkanFilterPoint}"
+- assertVisible: "${output.daftar_pesanan_page.headerTitle}"
+
+# [ORDER-12] Filter custom
+- tapOn:
+    point: "${output.daftar_pesanan_page.filterPeriodeButtonPoint}"
+- assertVisible: "${output.daftar_pesanan_page.filterPeriodeTitle}"
+- swipe:
+    start: "15%,25%"
+    end: "85%,25%"
+- tapOn:
+    text: "${output.daftar_pesanan_page.filterChipKustom}"
+    optional: true
+- tapOn:
+    point: "${output.daftar_pesanan_page.terapkanFilterPoint}"
+- assertVisible: "${output.daftar_pesanan_page.headerTitle}"
+
+# Reset filter back to Tahun ini
+- tapOn:
+    point: "${output.daftar_pesanan_page.filterPeriodeButtonPoint}"
+- swipe:
+    start: "85%,25%"
+    end: "15%,25%"
+- tapOn:
+    point: "${output.daftar_pesanan_page.filterChipTahunIniPoint}"
+- tapOn:
+    point: "${output.daftar_pesanan_page.terapkanFilterPoint}"
+- assertVisible: "${output.daftar_pesanan_page.headerTitle}"
+
+# Return to Dashboard
+- tapOn:
+    point: "${output.daftar_pesanan_page.backButtonPoint}"
+- assertVisible: "${output.dashboard_page.overviewLabel}"

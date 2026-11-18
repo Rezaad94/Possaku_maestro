@@ -1,0 +1,136 @@
+appId: ${APP_ID}
+tags:
+  - regression-p0
+  - kasir
+  - preorder
+  - offline
+  - sorting
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/kasir/kasir_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Navigate to Kasir menu from Dashboard
+- tapOn: "${output.kasir_page.kasirMenuButton}"
+- tapOn:
+    text: "Mengerti"
+    optional: true
+- assertVisible: "Kasir"
+
+# [KASIR-36] Create transaction with not booked BO product
+- tapOn: "${output.kasir_page.productRegularText}"
+- tapOn: "${output.kasir_page.variantReguler}"
+- tapOn:
+    point: "${output.kasir_page.variantSheetQtyPlusPoint}"
+- tapOn: "${output.kasir_page.variantSheetAdd}"
+- tapOn: "${output.kasir_page.cartButtonRegex}"
+- runFlow:
+    when:
+      visible: ".*Mengerti.*"
+    commands:
+      - back
+- copyTextFrom:
+    text: "Rp[0-9.]+"
+    rightOf: "Total"
+- evalScript: ${output.boTotal = output.kasir_utils.formatRpRegex(output.kasir_utils.parseRp(maestro.copiedText))}
+- tapOn: "${output.kasir_page.cartPayButton}"
+- tapOn: "${output.kasir_page.payMethodTunai}"
+- tapOn: "${output.kasir_page.payFinishButton}"
+- tapOn:
+    text: "Ya"
+    optional: true
+- assertVisible: "Selamat.*"
+- tapOn: "Lihat Nota"
+- assertVisible: "${output.kasir_page.receiptTitle}"
+- assertVisible: "Metode Pembayaran"
+- assertVisible: "Tunai"
+- swipe:
+    start: "50%,55%"
+    end: "50%,20%"
+- assertVisible: "Total"
+- assertVisible: "${output.boTotal}"
+- tapOn: "${output.kasir_page.receiptCloseButton}"
+- assertVisible: "Kasir"
+
+# [KASIR-37] Create transaction with booked BO product
+- tapOn: "${output.kasir_page.productRegularText}"
+- tapOn: "${output.kasir_page.variantReguler}"
+- tapOn:
+    point: "${output.kasir_page.variantSheetQtyPlusPoint}"
+- tapOn: "${output.kasir_page.variantSheetAdd}"
+- tapOn: "${output.kasir_page.cartButtonRegex}"
+- runFlow:
+    when:
+      visible: ".*Mengerti.*"
+    commands:
+      - back
+- tapOn:
+    point: "${output.kasir_page.cartBottomQueuePoint}"
+- assertVisible: "Antrian"
+- tapOn:
+    point: "540,1260"
+- inputText: "BO Booked Order"
+- tapOn: "${output.kasir_page.queueBayarNanti}"
+- assertVisible: ".*Selamat datang.*"
+- tapOn: "${output.kasir_page.kasirMenuButton}"
+- tapOn:
+    text: "Mengerti"
+    optional: true
+- assertVisible: "Kasir"
+
+# [KASIR-38] Ofline Mode
+- toggleAirplaneMode
+- tapOn: "${output.kasir_page.productRegularText}"
+- tapOn: "${output.kasir_page.variantReguler}"
+- tapOn:
+    point: "${output.kasir_page.variantSheetQtyPlusPoint}"
+- tapOn: "${output.kasir_page.variantSheetAdd}"
+- tapOn: "${output.kasir_page.cartButtonRegex}"
+- runFlow:
+    when:
+      visible: ".*Mengerti.*"
+    commands:
+      - back
+- assertVisible: "Rp[0-9.]+"
+- tapOn: "Kembali"
+- toggleAirplaneMode
+- runScript:
+    file: ../../pages/delay.js
+- assertVisible: "Kasir"
+
+# [KASIR-39] Sorting based on alphabet ascending
+- tapOn:
+    point: "${output.kasir_page.sortButtonPoint}"
+- tapOn: "${output.kasir_page.sortAlphabetAsc}"
+- assertVisible: "${output.kasir_page.productRegularText}"
+
+# [KASIR-40] Sorting based on alphabet descending
+- tapOn:
+    point: "${output.kasir_page.sortButtonPoint}"
+- tapOn: "${output.kasir_page.sortAlphabetDesc}"
+- assertVisible: "FK\\nfor kids\\n1 Varian"
+
+# [KASIR-41] Sorting based on stock ascending
+- tapOn:
+    point: "${output.kasir_page.sortButtonPoint}"
+- tapOn: "${output.kasir_page.sortStockAsc}"
+- assertVisible: "Kasir"
+
+# [KASIR-42] Sorting based on stock descending
+- tapOn:
+    point: "${output.kasir_page.sortButtonPoint}"
+- tapOn: "${output.kasir_page.sortStockDesc}"
+- assertVisible: "Kasir"
+

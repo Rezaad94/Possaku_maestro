@@ -1,0 +1,95 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - atur-produk
+  - product-creation
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/atur_produk/atur_produk_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [PROD-01] Open Atur Produk menu from Dashboard
+- tapOn: "${output.dashboard_page.aturProdukMenuButton}"
+- tapOn:
+    text: "Lewati"
+    optional: true
+- tapOn:
+    text: "Selesai"
+    optional: true
+- assertVisible: "${output.atur_produk_page.headerTitle}"
+
+# [PROD-24] Open Tambah Produk sheet from FAB
+- tapOn:
+    point: "${output.atur_produk_page.fabAddPoint}"
+- assertVisible: "${output.atur_produk_page.addChoiceTitle}"
+- assertVisible: "${output.atur_produk_page.addSingleProductButton}"
+- assertVisible: "${output.atur_produk_page.addBulkProductButton}"
+
+# Open single product form
+- tapOn: "${output.atur_produk_page.addSingleProductButton}"
+- assertVisible: "Detail Produk"
+- assertVisible: "${output.atur_produk_page.namaProdukLabel}"
+
+# [PROD-25] Buy add on booking order product sheet
+- assertVisible: "${output.atur_produk_page.bookingOrderAddonPrompt}"
+- tapOn:
+    point: "880,1536"
+- assertVisible: "Fitur Tambahan - Booking Order"
+- assertVisible: ".*Rp75.000.*"
+- assertVisible: "Beli Tambahan Fitur"
+- tapOn: "Tutup"
+- assertVisible: "Detail Produk"
+
+# [PROD-26] Add product with single variant (pro only) field verification
+- tapOn:
+    below: "Nama Produk"
+- inputText: "Produk Single Test"
+- pressKey: "enter"
+- swipe:
+    start: "50%,80%"
+    end: "50%,20%"
+- assertVisible: "${output.atur_produk_page.hargaJualLabel}"
+- assertVisible: "${output.atur_produk_page.hargaModalLabel}"
+- swipe:
+    start: "50%,80%"
+    end: "50%,20%"
+- assertVisible: "${output.atur_produk_page.kodeBarcodeLabel}"
+
+# [PROD-27] Add product with wholesale price (harga grosir)
+- assertVisible: "${output.atur_produk_page.wholesalePriceCheckbox}"
+- tapOn:
+    point: "95,1242"
+- assertVisible: "Harga Grosir"
+
+# [PROD-28] Add product with multiple varian
+- assertVisible: "${output.atur_produk_page.addVariantButton}"
+- tapOn:
+    point: "900,1450"
+- assertVisible: "Varian Produk"
+- assertVisible: "Nama Varian"
+- assertVisible: "Harga dan Stok Varian"
+- tapOn: "${output.atur_produk_page.backButton}"
+- assertVisible: "Tambah Produk"
+
+# Discard changes and return to Atur Produk catalog
+- tapOn: "${output.atur_produk_page.backButton}"
+- assertVisible: "${output.atur_produk_page.headerTitle}"
+
+# [PROD-29] Return to Dashboard
+- tapOn: "${output.atur_produk_page.backButton}"
+- assertVisible: "${output.dashboard_page.overviewLabel}"
+

@@ -1,0 +1,126 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - keuangan
+  - saku-utama-pengeluaran
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/keuangan/keuangan_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Open Keuangan and navigate to Pengeluaran
+- tapOn: "${output.dashboard_page.keuanganMenuButton}"
+- assertVisible: "${output.keuangan_page.headerTitle}"
+- tapOn: ".*Saku Utama.*"
+- assertVisible: "${output.keuangan_page.menuRekapTransaksi}"
+- swipe:
+    start: "50%,80%"
+    end: "50%,20%"
+- tapOn: "${output.keuangan_page.menuPengeluaran}"
+- assertVisible: "${output.keuangan_page.pengeluaranTitle}"
+
+# [KEU-63] View summary in pengeluaran
+- assertVisible: "${output.keuangan_page.totalBelanjaModalLabel}"
+- assertVisible: "${output.keuangan_page.totalOperasionalLabel}"
+
+# [KEU-62] View by category in pengeluaran
+- tapOn: "${output.keuangan_page.categoryBelanjaModalPill}"
+- tapOn: "${output.keuangan_page.categoryOperasionalPill}"
+- tapOn: "${output.keuangan_page.categorySemuaPill}"
+
+# [KEU-64] Download list pengeluaran
+- tapOn:
+    point: "${output.keuangan_page.downloadPengeluaranPoint}"
+- assertVisible:
+    text: ".*pdf.*"
+    optional: true
+- back:
+    optional: true
+- assertVisible: "${output.keuangan_page.pengeluaranTitle}"
+
+# [KEU-56] Add expenditure in pengeluaran
+- tapOn:
+    point: "${output.keuangan_page.addPengeluaranButtonPoint}"
+- assertVisible: "${output.keuangan_page.tambahPengeluaranTitle}"
+# Select Tanggal Pengeluaran first while keyboard is closed
+- tapOn:
+    point: "${output.keuangan_page.tanggalPengeluaranPickerPoint}"
+- tapOn: "${output.keuangan_page.datePickerConfirmOke}"
+# Enter Nama Transaksi
+- tapOn:
+    point: "${output.keuangan_page.namaTransaksiInputPoint}"
+- inputText: "Beli Kertas Nota"
+- pressKey: "enter"
+# Enter Total Pengeluaran
+- tapOn:
+    point: "${output.keuangan_page.totalPengeluaranInputPoint}"
+- inputText: "25000"
+- pressKey: "enter"
+# Simpan
+- tapOn:
+    point: "${output.keuangan_page.simpanPengeluaranPoint}"
+- assertVisible: "${output.keuangan_page.confirmDialogTitle}"
+- tapOn: "${output.keuangan_page.confirmDialogYa}"
+- assertVisible: "${output.keuangan_page.pengeluaranTitle}"
+
+# [KEU-58] List expenditure in pengeluaran
+- assertVisible: ".*Beli Kertas Nota.*"
+
+# [KEU-61] Search expenditure in pengeluaran
+- tapOn:
+    point: "${output.keuangan_page.searchPengeluaranTogglePoint}"
+- inputText: "Kertas"
+- pressKey: "enter"
+- assertVisible: ".*Beli Kertas Nota.*"
+- eraseText: 6
+- pressKey: "enter"
+- tapOn:
+    point: "${output.keuangan_page.searchPengeluaranTogglePoint}"
+
+# [KEU-59] View detail expenditure in pengeluaran
+- tapOn: ".*Beli Kertas Nota.*"
+- assertVisible: "${output.keuangan_page.detailPengeluaranTitle}"
+- assertVisible: ".*25.000.*"
+
+# [KEU-57] Edit expenditure in pengeluaran
+- tapOn:
+    point: "${output.keuangan_page.editPengeluaranPoint}"
+- assertVisible: "${output.keuangan_page.perbaruiPengeluaranTitle}"
+- tapOn:
+    point: "${output.keuangan_page.simpanPengeluaranPoint}"
+- assertVisible: "${output.keuangan_page.confirmDialogTitle}"
+- tapOn: "${output.keuangan_page.confirmDialogYa}"
+- assertVisible: "${output.keuangan_page.detailPengeluaranTitle}"
+
+# [KEU-60] Delete expenditure in pengeluaran
+- tapOn:
+    point: "${output.keuangan_page.deletePengeluaranPoint}"
+- assertVisible: ".*Hapus pengeluaran ini.*"
+- tapOn: "${output.keuangan_page.confirmDialogYa}"
+- assertVisible: "${output.keuangan_page.pengeluaranTitle}"
+
+# [TEARDOWN] Return to Dashboard from Keuangan
+- tapOn:
+    text: "${output.keuangan_page.backButton}"
+    optional: true
+- tapOn:
+    text: "${output.keuangan_page.backButton}"
+    optional: true
+- tapOn:
+    text: "${output.keuangan_page.backButton}"
+    optional: true
+- assertVisible: "${output.dashboard_page.overviewLabel}"

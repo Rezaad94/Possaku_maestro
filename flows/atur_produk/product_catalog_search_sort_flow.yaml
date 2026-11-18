@@ -1,0 +1,122 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - atur-produk
+  - catalog
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/atur_produk/atur_produk_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [PROD-01] Open Atur Produk menu from Dashboard
+- tapOn: "${output.dashboard_page.aturProdukMenuButton}"
+- tapOn:
+    text: "Lewati"
+    optional: true
+- tapOn:
+    text: "Selesai"
+    optional: true
+- assertVisible: "${output.atur_produk_page.headerTitle}"
+
+# [PROD-04] Show product by category appear
+- assertVisible: "${output.atur_produk_page.categorySemuaRegex}"
+- tapOn: "${output.atur_produk_page.categorySembakoRegex}"
+- assertVisible: "BO\\nberas oye.*"
+- tapOn: "${output.atur_produk_page.categorySemuaRegex}"
+
+# [PROD-05] Search product (valid query)
+- tapOn:
+    point: "${output.atur_produk_page.searchIconPoint}"
+- tapOn:
+    point: "${output.atur_produk_page.searchInputPoint}"
+- assertVisible: "${output.atur_produk_page.searchFieldHint}"
+- inputText: "beras"
+- assertVisible: "BO\\nberas oye.*"
+- tapOn: "${output.atur_produk_page.searchCloseButton}"
+- assertVisible: "${output.atur_produk_page.headerTitle}"
+
+# [PROD-06] Sort Product by alphabet ASC
+- tapOn:
+    point: "${output.atur_produk_page.sortIconPoint}"
+- assertVisible: "${output.atur_produk_page.sortSheetTitle}"
+- tapOn: "${output.atur_produk_page.sortAlphabetAsc}"
+- assertVisible: "BO\\nberas oye.*"
+
+# [PROD-07] Sort Product by alphabet DESC
+- tapOn:
+    point: "${output.atur_produk_page.sortIconPoint}"
+- assertVisible: "${output.atur_produk_page.sortSheetTitle}"
+- tapOn: "${output.atur_produk_page.sortAlphabetDesc}"
+- assertVisible: "FK\\nfor kids.*"
+
+# [PROD-08] Sort Product by highest stock
+- tapOn:
+    point: "${output.atur_produk_page.sortIconPoint}"
+- assertVisible: "${output.atur_produk_page.sortSheetTitle}"
+- tapOn: "${output.atur_produk_page.sortStockDesc}"
+- assertVisible: "${output.atur_produk_page.headerTitle}"
+
+# [PROD-09] Sort Product by lowest stock
+- tapOn:
+    point: "${output.atur_produk_page.sortIconPoint}"
+- assertVisible: "${output.atur_produk_page.sortSheetTitle}"
+- tapOn: "${output.atur_produk_page.sortStockAsc}"
+- assertVisible: "${output.atur_produk_page.headerTitle}"
+
+# [PROD-10] Sorting based on active product
+- tapOn:
+    point: "${output.atur_produk_page.sortIconPoint}"
+- assertVisible: "${output.atur_produk_page.sortSheetTitle}"
+- tapOn: "${output.atur_produk_page.sortActiveProduct}"
+- assertVisible: ".*Aktif.*"
+
+# [PROD-11] Sorting based on inactive product
+- tapOn:
+    point: "${output.atur_produk_page.sortIconPoint}"
+- assertVisible: "${output.atur_produk_page.sortSheetTitle}"
+- tapOn: "${output.atur_produk_page.sortInactiveProduct}"
+- assertVisible: "${output.atur_produk_page.headerTitle}"
+
+# [SETUP] Reset back to Alphabet A-Z
+- tapOn:
+    point: "${output.atur_produk_page.sortIconPoint}"
+- tapOn: "${output.atur_produk_page.sortAlphabetAsc}"
+
+# [PROD-12] Pagination / Scroll lazy loading
+- swipe:
+    start: "50%,70%"
+    end: "50%,30%"
+- swipe:
+    start: "50%,30%"
+    end: "50%,70%"
+- assertVisible: "${output.atur_produk_page.headerTitle}"
+
+# [PROD-13] Offline mode
+- toggleAirplaneMode
+- runScript:
+    file: ../../pages/delay.js
+- assertVisible: "${output.atur_produk_page.headerTitle}"
+- assertVisible: "BO\\nberas oye.*"
+- toggleAirplaneMode
+- runScript:
+    file: ../../pages/delay.js
+- assertVisible: "${output.atur_produk_page.headerTitle}"
+
+# [PROD-14] Return to Dashboard from Atur Produk
+- tapOn: "${output.atur_produk_page.backButton}"
+- assertVisible: "${output.dashboard_page.overviewLabel}"
+

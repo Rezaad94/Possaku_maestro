@@ -1,0 +1,47 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - daftar-pelanggan
+  - customer-offline
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/daftar_pelanggan/daftar_pelanggan_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [CUST-11] Offline Mode in Daftar Pelanggan
+- toggleAirplaneMode
+- tapOn:
+    point: "${output.daftar_pelanggan_page.daftarPelangganIconPoint}"
+- tapOn:
+    text: "${output.daftar_pelanggan_page.coachmarkSkipButton}"
+    optional: true
+- tapOn:
+    text: "${output.daftar_pelanggan_page.coachmarkDoneButton}"
+    optional: true
+- assertVisible: "${output.daftar_pelanggan_page.headerTitle}"
+- assertVisible: "${output.daftar_pelanggan_page.searchPelangganField}"
+- tapOn:
+    point: "${output.daftar_pelanggan_page.searchPelangganFieldPoint}"
+- eraseText: 25
+- inputText: "Pelanggan"
+- pressKey: "enter"
+- assertVisible: ".*Pelanggan.*"
+- tapOn: "${output.daftar_pelanggan_page.backButton}"
+- toggleAirplaneMode
+- runScript:
+    file: ../../pages/delay.js
+- assertVisible: "${output.dashboard_page.overviewLabel}"

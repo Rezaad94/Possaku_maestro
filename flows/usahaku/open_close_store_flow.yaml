@@ -1,0 +1,89 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - usahaku
+  - store-status
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/usahaku/usahaku_page.js
+
+# Setup: Login
+- runFlow:
+    file: ../../pages/login/login_flow.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# Dismiss onboarding/update dialogs if visible
+- tapOn:
+    text: "Mengerti"
+    optional: true
+
+# Pre-requisite conditional check: If the store is currently Closed ("Tutup"), toggle it to Open ("Buka") first
+- runFlow:
+    when:
+      visible: "${output.dashboard_page.storeStatusLabelTutup}"
+    commands:
+      - tapOn: "Usahaku\nTab 3.*"
+      - runScript:
+          file: ../../pages/delay.js
+      - tapOn:
+          point: "${output.usahaku_page.toggleStoreSwitchPoint}"
+      - runScript:
+          file: ../../pages/delay.js
+      - tapOn: "${output.usahaku_page.confirmYesButton}"
+      - runScript:
+          file: ../../pages/delay.js
+      - tapOn: "Home\nTab 1.*"
+      - runScript:
+          file: ../../pages/delay.js
+
+# Now that the store is guaranteed to be Buka, run the open/close verification sequence:
+
+# [USAHA-01] Navigate to Usahaku Tab
+- tapOn: "Usahaku\nTab 3.*"
+- runScript:
+    file: ../../pages/delay.js
+
+# [USAHA-02] Toggle Store Status to Close
+- tapOn:
+    point: "${output.usahaku_page.toggleStoreSwitchPoint}"
+- runScript:
+    file: ../../pages/delay.js
+- tapOn: "${output.usahaku_page.confirmYesButton}"
+- runScript:
+    file: ../../pages/delay.js
+
+# [USAHA-03] Verify Store Status on Home Dashboard is Tutup
+- tapOn: "Home\nTab 1.*"
+- runScript:
+    file: ../../pages/delay.js
+- assertVisible: "${output.dashboard_page.storeStatusLabelTutup}"
+- assertVisible: "${output.dashboard_page.jamOperasionalBukaInfo}"
+
+# [USAHA-04] Navigate back to Usahaku Tab and Toggle Store Status back to Open
+- tapOn: "Usahaku\nTab 3.*"
+- runScript:
+    file: ../../pages/delay.js
+- tapOn:
+    point: "${output.usahaku_page.toggleStoreSwitchPoint}"
+- runScript:
+    file: ../../pages/delay.js
+- tapOn: "${output.usahaku_page.confirmYesButton}"
+- runScript:
+    file: ../../pages/delay.js
+
+# [USAHA-05] Verify Store Status on Home Dashboard is Buka again
+- tapOn: "Home\nTab 1.*"
+- runScript:
+    file: ../../pages/delay.js
+- assertVisible: "${output.dashboard_page.storeStatusLabelBuka}"
+- assertVisible: "${output.dashboard_page.jamOperasionalTutupInfo}"

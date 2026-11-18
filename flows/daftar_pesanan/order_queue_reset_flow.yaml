@@ -1,0 +1,58 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - pesanan
+  - order-queue-reset
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/daftar_pesanan/daftar_pesanan_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Dismiss onboarding dialog if visible
+- tapOn:
+    text: "Mengerti"
+    optional: true
+
+# [SETUP] Open Daftar Pesanan
+- tapOn:
+    point: "540, 1490"
+- runFlow:
+    when:
+      visible: ".*transaksi aktif.*"
+    commands:
+      - back
+- assertVisible: "${output.daftar_pesanan_page.headerTitle}"
+
+# [ORDER-19] Reset nomor antrian & confirmation dialog
+- tapOn:
+    point: "${output.daftar_pesanan_page.resetNomorAntrianPoint}"
+- assertVisible: "${output.daftar_pesanan_page.konfirmasiResetDialog}"
+- tapOn:
+    point: "${output.daftar_pesanan_page.konfirmasiTidakPoint}"
+- assertVisible: "${output.daftar_pesanan_page.headerTitle}"
+
+# Re-trigger reset confirmation and test dismiss via scrim/back
+- tapOn:
+    point: "${output.daftar_pesanan_page.resetNomorAntrianPoint}"
+- assertVisible: "${output.daftar_pesanan_page.konfirmasiResetDialog}"
+- back
+- assertVisible: "${output.daftar_pesanan_page.headerTitle}"
+
+# Return to Dashboard
+- tapOn:
+    point: "${output.daftar_pesanan_page.backButtonPoint}"
+- assertVisible: "${output.dashboard_page.overviewLabel}"

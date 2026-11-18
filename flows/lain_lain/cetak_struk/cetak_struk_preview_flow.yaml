@@ -1,0 +1,91 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - lain-lain
+  - cetak-struk
+  - struk-preview
+---
+- runScript:
+    file: ../../../pages/login/login_credential.js
+- runScript:
+    file: ../../../pages/login/login_page.js
+- runScript:
+    file: ../../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../../pages/lain_lain/cetak_struk_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Dismiss onboarding dialog if visible
+- tapOn:
+    text: "Mengerti"
+    optional: true
+
+# [SETUP] Open Cetak Struk and add product
+- tapOn:
+    point: "${output.cetak_struk_page.lainLainMenuPoint}"
+- tapOn:
+    point: "${output.cetak_struk_page.cetakStrukMenuPoint}"
+- assertVisible: "${output.cetak_struk_page.headerTitle}"
+- tapOn: "${output.cetak_struk_page.katalogProdukButton}"
+- assertVisible: "${output.cetak_struk_page.katalogTitle}"
+- tapOn: "${output.cetak_struk_page.katalogProductFirstCard}"
+- assertVisible: "${output.cetak_struk_page.variantSheetTitle}"
+- tapOn:
+    point: "${output.cetak_struk_page.variantQtyPlusPoint}"
+- tapOn: "${output.cetak_struk_page.variantTambahkanButton}"
+- assertVisible: "${output.cetak_struk_page.tambahkanKeStrukButton}"
+- tapOn: "${output.cetak_struk_page.tambahkanKeStrukButton}"
+- assertVisible: "${output.cetak_struk_page.headerTitle}"
+
+# [STRUK-13] Preview struck
+- tapOn: "${output.cetak_struk_page.previewButton}"
+- assertVisible: "${output.cetak_struk_page.previewTitle}"
+- assertVisible: "${output.cetak_struk_page.pilihTanggalButton}"
+- assertVisible: "${output.cetak_struk_page.namaPelangganButton}"
+- assertVisible: "${output.cetak_struk_page.metodePembayaranButton}"
+
+# [STRUK-14] Add created date
+- tapOn:
+    point: "${output.cetak_struk_page.pilihTanggalPoint}"
+- assertVisible: "${output.cetak_struk_page.aturTanggalTitle}"
+- tapOn:
+    point: "${output.cetak_struk_page.terapkanTanggalPoint}"
+- assertVisible: "${output.cetak_struk_page.previewTitle}"
+
+# [STRUK-15] Add customer
+- tapOn:
+    point: "${output.cetak_struk_page.namaPelangganPoint}"
+- assertVisible: "${output.cetak_struk_page.pilihPelangganTitle}"
+- tapOn:
+    point: "${output.cetak_struk_page.pilihCustomerFirstPoint}"
+- assertVisible: "${output.cetak_struk_page.previewTitle}"
+
+# [STRUK-16] Add payment method
+- tapOn:
+    point: "${output.cetak_struk_page.metodePembayaranPoint}"
+- assertVisible: "${output.cetak_struk_page.metodePembayaranSheetTitle}"
+- tapOn:
+    point: "${output.cetak_struk_page.radioTunaiPoint}"
+- assertVisible: "${output.cetak_struk_page.previewTitle}"
+- assertVisible: "Tunai"
+
+# [STRUK-17] Print struck
+- tapOn:
+    point: "${output.cetak_struk_page.cetakStrukSubmitPoint}"
+- assertVisible: "${output.cetak_struk_page.transaksiSuksesTitle}"
+- assertVisible: "${output.cetak_struk_page.pilihPrinterButton}"
+
+# [STRUK-18] New Transaction
+- tapOn:
+    point: "${output.cetak_struk_page.transaksiBaruSuccessPoint}"
+- tapOn:
+    point: "${output.cetak_struk_page.backButtonPoint}"
+- assertVisible: "${output.dashboard_page.overviewLabel}"

@@ -1,0 +1,78 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - atur-produk
+  - product-detail
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/atur_produk/atur_produk_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [PROD-01] Open Atur Produk menu from Dashboard
+- tapOn: "${output.dashboard_page.aturProdukMenuButton}"
+- tapOn:
+    text: "Lewati"
+    optional: true
+- tapOn:
+    text: "Selesai"
+    optional: true
+- assertVisible: "${output.atur_produk_page.headerTitle}"
+
+# [PROD-19] View & Edit Product detail
+- tapOn: "FK\\nfor kids.*"
+- assertVisible: "${output.atur_produk_page.detailHeaderTitle}"
+- assertVisible: "${output.atur_produk_page.statusProdukLabel}"
+- assertVisible: "for kids"
+- assertVisible: "${output.atur_produk_page.updateProductButton}"
+
+# [PROD-20] View product history
+- tapOn:
+    point: "${output.atur_produk_page.productMoreMenuPoint}"
+- assertVisible: "${output.atur_produk_page.advancedSettingsTitle}"
+- assertVisible: "${output.atur_produk_page.productHistoryMenu}"
+- tapOn: "${output.atur_produk_page.productHistoryMenu}"
+- assertVisible: "${output.atur_produk_page.historyHeaderTitle}"
+- assertVisible: "${output.atur_produk_page.historyDimasukkanEtalase}"
+- assertVisible: "${output.atur_produk_page.historyUpdateTerakhir}"
+- tapOn: "${output.atur_produk_page.backButton}"
+- assertVisible: "${output.atur_produk_page.detailHeaderTitle}"
+
+# [PROD-21] Delete product confirmation flow (cancel on Tidak)
+- tapOn:
+    point: "${output.atur_produk_page.productMoreMenuPoint}"
+- assertVisible: "${output.atur_produk_page.deleteProductMenu}"
+- tapOn: "${output.atur_produk_page.deleteProductMenu}"
+- assertVisible: "${output.atur_produk_page.deleteConfirmModalTitle}"
+- assertVisible: "${output.atur_produk_page.deleteConfirmYesButton}"
+- assertVisible: "${output.atur_produk_page.deleteConfirmNoButton}"
+- tapOn: "${output.atur_produk_page.deleteConfirmNoButton}"
+- assertVisible: "${output.atur_produk_page.detailHeaderTitle}"
+
+# [PROD-22] Change product status (active/inactive toggle)
+- tapOn:
+    point: "${output.atur_produk_page.statusProdukSwitchPoint}"
+- tapOn:
+    point: "${output.atur_produk_page.statusProdukSwitchPoint}"
+- tapOn: "${output.atur_produk_page.updateProductButton}"
+- assertVisible: "Konfirmasi.*"
+- tapOn: "Ya"
+- assertVisible: "${output.atur_produk_page.headerTitle}"
+
+# [PROD-23] Return to Dashboard from Atur Produk
+- tapOn: "${output.atur_produk_page.backButton}"
+- assertVisible: "${output.dashboard_page.overviewLabel}"
+

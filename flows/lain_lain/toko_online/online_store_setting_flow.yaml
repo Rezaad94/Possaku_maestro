@@ -1,0 +1,60 @@
+appId: ${APP_ID}
+tags:
+  - regression-p2
+  - settings
+  - online-store
+---
+- runScript:
+    file: ../../../pages/login/login_credential.js
+- runScript:
+    file: ../../../pages/login/login_page.js
+- runScript:
+    file: ../../../pages/lain_lain/lain_lain_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Dismiss onboarding/update dialogs if visible
+- tapOn:
+    text: "Mengerti"
+    optional: true
+
+# [LAIN-01] Navigate to Lain-Lain Tab
+- tapOn: "${output.lain_lain_page.lainLainTabButton}"
+- runScript:
+    file: ../../../pages/delay.js
+
+# [LAIN-02] Open Toko Onlineku settings
+- tapOn: "${output.lain_lain_page.tokoOnlineMenuButton}"
+- runScript:
+    file: ../../../pages/delay.js
+
+# [SETUP] Dismiss onboarding/info guide overlay screens if they appear
+- tapOn:
+    text: "${output.lain_lain_page.onboardingContinueButton}"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+- tapOn:
+    text: "${output.lain_lain_page.onboardingContinueButton}"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+- tapOn:
+    text: "${output.lain_lain_page.onboardingDoneButton}"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# [LAIN-03] Verify settings page elements
+- assertVisible: "${output.lain_lain_page.tokoOnlineTitle}"
+- assertVisible: "${output.lain_lain_page.settingJamBukaLabel}"
+- assertVisible: "${output.lain_lain_page.settingHariBukaLabel}"
+- assertVisible: "${output.lain_lain_page.settingNomorWALabel}"
+- assertVisible: "${output.lain_lain_page.settingUpdateBtn}"

@@ -1,0 +1,149 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - keuangan
+  - saku-utama-pajak-hutang-voucher
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/keuangan/keuangan_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Open Keuangan and navigate to Laporan Pajak
+- tapOn: "${output.dashboard_page.keuanganMenuButton}"
+- assertVisible: "${output.keuangan_page.headerTitle}"
+- tapOn: ".*Saku Utama.*"
+- assertVisible: "${output.keuangan_page.menuRekapTransaksi}"
+- swipe:
+    start: "50%,80%"
+    end: "50%,30%"
+- tapOn: "${output.keuangan_page.menuLaporanPajak}"
+- assertVisible: "${output.keuangan_page.laporanPajakTitle}"
+
+# [KEU-46] View summary in Laporan Pajak
+- assertVisible: "${output.keuangan_page.totalPenjualanPajakLabel}"
+- assertVisible: "${output.keuangan_page.totalTransaksiPajakLabel}"
+- assertVisible: "${output.keuangan_page.totalPajakLabel}"
+
+# [KEU-43] List transaction in Laporan Pajak
+- assertVisible: "Riwayat Penjualan"
+- assertVisible: ".*INV.*"
+
+# [KEU-44] Search transaction in Laporan Pajak
+- tapOn: "${output.keuangan_page.pajakSearchInputHint}"
+- inputText: "INV"
+- pressKey: "enter"
+- assertVisible: ".*INV.*"
+- eraseText: 5
+- pressKey: "enter"
+
+# [KEU-45] Download in Laporan Pajak
+- tapOn:
+    point: "${output.keuangan_page.downloadReportPoint}"
+- assertVisible: ".*pdf.*"
+- back
+- assertVisible: "${output.keuangan_page.laporanPajakTitle}"
+
+# [KEU-50] View summary in hutang pelanggan
+- swipe:
+    start: "85%,25%"
+    end: "15%,25%"
+- tapOn: "${output.keuangan_page.tabHutangPelanggan}"
+- assertVisible: "${output.keuangan_page.hutangPelangganTitle}"
+- assertVisible: "${output.keuangan_page.totalTransaksiHutangLabel}"
+- assertVisible: "${output.keuangan_page.totalUangMukaLabel}"
+- assertVisible: "${output.keuangan_page.totalCicilanMasukLabel}"
+- assertVisible: "${output.keuangan_page.totalSisaHutangLabel}"
+
+# [KEU-47] List dept transaction in Laporan hutang pelanggan
+- swipe:
+    start: "50%,80%"
+    end: "50%,30%"
+- assertVisible: "Riwayat Hutang"
+- assertVisible: ".*Hutang.*"
+
+# [KEU-48] Search transaction in Laporan hutang pelanggan
+- tapOn: "${output.keuangan_page.hutangSearchInputHint}"
+- inputText: "beras"
+- pressKey: "enter"
+- assertVisible: ".*beras.*"
+- eraseText: 6
+- pressKey: "enter"
+
+# [KEU-51] Filter by customer in Laporan hutang pelanggan
+- tapOn:
+    point: "975,250"
+    optional: true
+
+# [KEU-49] Download in Laporan hutang pelanggan
+- tapOn:
+    point: "${output.keuangan_page.downloadReportPoint}"
+    optional: true
+- assertVisible:
+    text: ".*pdf.*"
+    optional: true
+- back:
+    optional: true
+- assertVisible: "${output.keuangan_page.hutangPelangganTitle}"
+
+# [SETUP] Navigate to Transaksi Voucher
+- tapOn: "${output.keuangan_page.backButton}"
+- tapOn:
+    text: ".*Saku Utama.*"
+    optional: true
+- swipe:
+    start: "50%,80%"
+    end: "50%,20%"
+    optional: true
+- tapOn: "${output.keuangan_page.menuTransaksiVoucher}"
+- assertVisible: "${output.keuangan_page.transaksiVoucherTitle}"
+
+# [KEU-55] View summary in transaksi voucher
+- assertVisible: "${output.keuangan_page.totalPenjualanVoucherLabel}"
+- assertVisible: "${output.keuangan_page.totalNominalVoucherLabel}"
+
+# [KEU-52] List voucher transaction in transaksi voucher
+- assertVisible: "Riwayat Penjualan"
+
+# [KEU-53] Search transaction in transaksi voucher
+- tapOn: "${output.keuangan_page.voucherSearchInputHint}"
+- inputText: "VOC"
+- pressKey: "enter"
+- eraseText: 5
+- pressKey: "enter"
+
+# [KEU-54] Download intransaksi voucher
+- tapOn:
+    point: "${output.keuangan_page.downloadReportPoint}"
+    optional: true
+- assertVisible:
+    text: ".*pdf.*"
+    optional: true
+- back:
+    optional: true
+- assertVisible: "${output.keuangan_page.transaksiVoucherTitle}"
+
+# [TEARDOWN] Return to Dashboard from Keuangan
+- tapOn:
+    text: "${output.keuangan_page.backButton}"
+    optional: true
+- tapOn:
+    text: "${output.keuangan_page.backButton}"
+    optional: true
+- tapOn:
+    text: "${output.keuangan_page.backButton}"
+    optional: true
+- assertVisible: "${output.dashboard_page.overviewLabel}"

@@ -1,0 +1,103 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - keuangan
+  - saku-utama-penjualan-produk
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/keuangan/keuangan_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Open Keuangan and navigate to Penjualan Produk
+- tapOn: "${output.dashboard_page.keuanganMenuButton}"
+- assertVisible: "${output.keuangan_page.headerTitle}"
+- tapOn: ".*Saku Utama.*"
+- assertVisible: "${output.keuangan_page.menuPenjualanProduk}"
+- tapOn: "${output.keuangan_page.menuPenjualanProduk}"
+- assertVisible: "${output.keuangan_page.penjualanProdukTitle}"
+
+# [KEU-25] View summary in Laporan Penjualan per produk
+- assertVisible: "${output.keuangan_page.totalProdukTerjualLabel}"
+- assertVisible: "${output.keuangan_page.totalLabaLabel}"
+
+# [KEU-22] List total Per product in Laporan Penjualan per produk
+- assertVisible: ".*beras oye.*"
+- assertVisible: ".*Jumlah Terjual.*"
+- assertVisible: ".*Total Laba.*"
+
+# [KEU-23] Download in Laporan Penjualan per produk
+- tapOn:
+    point: "${output.keuangan_page.downloadReportPoint}"
+- assertVisible: ".*pdf.*"
+- back
+- assertVisible: "${output.keuangan_page.penjualanProdukTitle}"
+
+# [KEU-26] View detail Laporan penjualan per produk
+- tapOn:
+    text: ".*beras oye.*"
+    optional: true
+
+# [KEU-28] List transaction in Laporan Penjualan per produk detail
+- assertVisible: ".*beras oye.*"
+- assertVisible: ".*Jumlah Terjual.*"
+
+# [KEU-27] Search transaction in Laporan penjualan per produk detail
+- tapOn:
+    point: "975,250"
+    optional: true
+
+# [KEU-29] Sort ASC most sold price Laporan Penjualan per produk detail
+- tapOn:
+    text: ".*Harga Terendah.*"
+    optional: true
+
+# [KEU-30] Sort DESC most sold price Laporan Penjualan per produk detail
+- tapOn:
+    text: ".*Harga Tertinggi.*"
+    optional: true
+
+# [KEU-31] Sort ASC most sold qty Laporan Penjualan per produk detail
+- tapOn:
+    text: ".*Terjual Terendah.*"
+    optional: true
+
+# [KEU-32] Sort DESC most sold qty Laporan Penjualan per produk detail
+- tapOn:
+    text: ".*Terjual Terbanyak.*"
+    optional: true
+
+# [KEU-24] Download in Detail Laporan Penjualan per produk
+- tapOn:
+    point: "${output.keuangan_page.downloadReportPoint}"
+    optional: true
+- tapOn:
+    text: "SAVE"
+    optional: true
+- back:
+    optional: true
+
+# [TEARDOWN] Return to Dashboard from Keuangan
+- tapOn:
+    text: "${output.keuangan_page.backButton}"
+    optional: true
+- tapOn:
+    text: "${output.keuangan_page.backButton}"
+    optional: true
+- tapOn:
+    text: "${output.keuangan_page.backButton}"
+    optional: true
+- assertVisible: "${output.dashboard_page.overviewLabel}"

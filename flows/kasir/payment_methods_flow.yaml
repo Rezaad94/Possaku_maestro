@@ -1,0 +1,192 @@
+appId: ${APP_ID}
+tags:
+  - regression-p0
+  - kasir
+  - payment
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/kasir/kasir_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Navigate to Kasir menu from Dashboard
+- tapOn: "${output.kasir_page.kasirMenuButton}"
+- tapOn:
+    text: "Mengerti"
+    optional: true
+- assertVisible: "Kasir"
+
+# [KASIR-29] Finish transaction with Hutang method
+- tapOn: "${output.kasir_page.productRegularText}"
+- tapOn: "${output.kasir_page.variantReguler}"
+- tapOn:
+    point: "${output.kasir_page.variantSheetQtyPlusPoint}"
+- tapOn: "${output.kasir_page.variantSheetAdd}"
+- tapOn: "${output.kasir_page.cartButtonRegex}"
+- runFlow:
+    when:
+      visible: ".*Mengerti.*"
+    commands:
+      - back
+- tapOn:
+    point: "${output.kasir_page.cartTopCustomerPoint}"
+- assertVisible: "Pilih Pelanggan"
+- tapOn:
+    text: ".*Pelanggan Baru.*"
+    index: 0
+    point: "90%,50%"
+- copyTextFrom:
+    text: "Rp[0-9.]+"
+    rightOf: "Total"
+- evalScript: ${output.hutangTotal = output.kasir_utils.formatRpRegex(output.kasir_utils.parseRp(maestro.copiedText))}
+- tapOn: "${output.kasir_page.cartPayButton}"
+- tapOn: "${output.kasir_page.payMethodHutang}"
+- scrollUntilVisible:
+    element:
+      text: "Catatan Pesanan"
+    direction: DOWN
+    centerElement: true
+- tapOn:
+    below: "Catatan Pesanan"
+    above: "Pilih Pelanggan"
+- inputText: "Catatan Hutang"
+- pressKey: "enter"
+- scrollUntilVisible:
+    element:
+      text: "Masa Hutang"
+    direction: DOWN
+    centerElement: true
+- tapOn:
+    below: "Masa Hutang"
+    leftOf: "Hari"
+- inputText: "2"
+- pressKey: "enter"
+- tapOn: "Hari"
+- tapOn: "Minggu"
+- scrollUntilVisible:
+    element:
+      text: "Rp5.000"
+    direction: DOWN
+    visibilityPercentage: 50
+    timeout: 15000
+- tapOn: "Rp5.000"
+- tapOn: "Selanjutnya"
+- tapOn:
+    text: "Ya"
+    optional: true
+- assertVisible: "Selamat.*"
+- tapOn: "Lihat Nota"
+- assertVisible: "${output.kasir_page.receiptTitle}"
+- assertVisible: "Pelanggan"
+- assertVisible: "Pelanggan Baru"
+- assertVisible: "Metode Pembayaran"
+- assertVisible: "Hutang"
+- swipe:
+    start: "50%,55%"
+    end: "50%,20%"
+- assertVisible: "Total"
+- assertVisible: "${output.hutangTotal}"
+- tapOn: "${output.kasir_page.receiptCloseButton}"
+- assertVisible: "Kasir"
+
+# [KASIR-30] Finish transaction with Debit/Credit method
+- tapOn: "${output.kasir_page.productRegularText}"
+- tapOn: "${output.kasir_page.variantReguler}"
+- tapOn:
+    point: "${output.kasir_page.variantSheetQtyPlusPoint}"
+- tapOn: "${output.kasir_page.variantSheetAdd}"
+- tapOn: "${output.kasir_page.cartButtonRegex}"
+- runFlow:
+    when:
+      visible: ".*Mengerti.*"
+    commands:
+      - back
+- copyTextFrom:
+    text: "Rp[0-9.]+"
+    rightOf: "Total"
+- evalScript: ${output.debitTotal = output.kasir_utils.formatRpRegex(output.kasir_utils.parseRp(maestro.copiedText))}
+- tapOn: "${output.kasir_page.cartPayButton}"
+- tapOn: "${output.kasir_page.payMethodDebitCredit}"
+- tapOn: "Pratinjau Produk"
+- back
+- scrollUntilVisible:
+    element:
+      text: "Catatan Pesanan"
+    direction: DOWN
+    centerElement: true
+- tapOn:
+    below: "Catatan Pesanan"
+- inputText: "Catatan Debit"
+- pressKey: "enter"
+- scrollUntilVisible:
+    element:
+      text: "Masukkan Nomor Kartu"
+    direction: DOWN
+    centerElement: true
+- tapOn:
+    below: "Masukkan Nomor Kartu"
+- inputText: "1234567812345678"
+- pressKey: "enter"
+- tapOn: "${output.kasir_page.paySuccessButton}"
+- assertVisible: "Selamat.*"
+- tapOn: "Lihat Nota"
+- assertVisible: "${output.kasir_page.receiptTitle}"
+- assertVisible: "Metode Pembayaran"
+- assertVisible: "Debit/Kredit"
+- swipe:
+    start: "50%,55%"
+    end: "50%,20%"
+- assertVisible: "Total"
+- assertVisible: "${output.debitTotal}"
+- tapOn: "${output.kasir_page.receiptCloseButton}"
+- assertVisible: "Kasir"
+
+# [KASIR-31] Finish transaction with QRIS/Transfer method
+- tapOn: "${output.kasir_page.productRegularText}"
+- tapOn: "${output.kasir_page.variantReguler}"
+- tapOn:
+    point: "${output.kasir_page.variantSheetQtyPlusPoint}"
+- tapOn: "${output.kasir_page.variantSheetAdd}"
+- tapOn: "${output.kasir_page.cartButtonRegex}"
+- runFlow:
+    when:
+      visible: ".*Mengerti.*"
+    commands:
+      - back
+- copyTextFrom:
+    text: "Rp[0-9.]+"
+    rightOf: "Total"
+- evalScript: ${output.debitTotal = output.kasir_utils.formatRpRegex(output.kasir_utils.parseRp(maestro.copiedText))}
+- tapOn: "${output.kasir_page.cartPayButton}"
+- tapOn: "${output.kasir_page.payMethodQrisTransfer}"
+- tapOn:
+    point: "993,588"
+- assertVisible: "Tambah QRIS/Rekening"
+- tapOn: "Rekening Bank"
+- assertVisible: "Pilih Bank Penyedia"
+- tapOn: "Kembali"
+- tapOn: "${output.kasir_page.paySuccessButton}"
+- assertVisible: "Selamat.*"
+- tapOn: "Lihat Nota"
+- assertVisible: "${output.kasir_page.receiptTitle}"
+- assertVisible: "Metode Pembayaran"
+- assertVisible: "TRANSFER"
+- swipe:
+    start: "50%,55%"
+    end: "50%,20%"
+- assertVisible: "Total"
+- assertVisible: "${output.debitTotal}"
+- tapOn: "${output.kasir_page.receiptCloseButton}"
+- assertVisible: "Kasir"
+

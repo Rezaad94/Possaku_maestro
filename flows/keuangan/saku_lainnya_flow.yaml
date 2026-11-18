@@ -1,0 +1,231 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - keuangan
+  - saku-lainnya
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/keuangan/keuangan_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Open Keuangan
+- tapOn: "${output.dashboard_page.keuanganMenuButton}"
+- assertVisible: "${output.keuangan_page.headerTitle}"
+
+# Ensure clean pocket state: if pocket exists from previous run, delete it
+- tapOn:
+    point: "${output.keuangan_page.firstPocketCardPoint}"
+    optional: true
+- tapOn:
+    point: "${output.keuangan_page.moreOptionsPoint}"
+    optional: true
+- tapOn:
+    text: "${output.keuangan_page.deleteSakuConfirmButton}"
+    optional: true
+
+# [KEU-66] Add saku Lainnya (pro)
+- tapOn:
+    point: "${output.keuangan_page.addSakuLainnyaButtonPoint}"
+- assertVisible: "${output.keuangan_page.buatSakuBaruTitle}"
+- tapOn:
+    point: "540,880"
+- inputText: "Tabungan Usaha"
+- pressKey: "enter"
+- tapOn:
+    point: "${output.keuangan_page.buatSakuSubmitButtonPoint}"
+- assertVisible: ".*Tabungan Usaha.*"
+
+# [KEU-65] Search saku Lainnya (pro)
+- tapOn:
+    point: "${output.keuangan_page.searchSakuLainnyaPoint}"
+- assertVisible: "${output.keuangan_page.closeSearchSakuButton}"
+- inputText: "Tabungan"
+- pressKey: "enter"
+- assertVisible: ".*Tabungan Usaha.*"
+- eraseText: 8
+- pressKey: "enter"
+- tapOn:
+    text: "${output.keuangan_page.closeSearchSakuButton}"
+    optional: true
+
+# Open the pocket
+- tapOn:
+    point: "${output.keuangan_page.firstPocketCardPoint}"
+- assertVisible: "${output.keuangan_page.sakuLainnyaRekapMenu}"
+- assertVisible: "${output.keuangan_page.sakuLainnyaPemasukanMenu}"
+- assertVisible: "${output.keuangan_page.sakuLainnyaPengeluaranMenu}"
+
+# [KEU-67] Edit saku Lainnya (pro)
+- tapOn:
+    point: "${output.keuangan_page.editSakuPocketPoint}"
+- assertVisible: "${output.keuangan_page.updateSakuTitle}"
+- tapOn:
+    point: "540,450"
+- tapOn: "${output.keuangan_page.editSakuSubmitButton}"
+- assertVisible: "${output.keuangan_page.sakuLainnyaPemasukanMenu}"
+
+# [KEU-69] Download saku Lainnya (pro)
+- tapOn:
+    point: "${output.keuangan_page.moreOptionsPoint}"
+- assertVisible: "${output.keuangan_page.downloadSakuOption}"
+- tapOn: "${output.keuangan_page.downloadSakuOption}"
+- assertVisible:
+    text: ".*pdf.*"
+    optional: true
+- back:
+    optional: true
+- tapOn:
+    text: "Tutup"
+    optional: true
+
+# --- PEMASUKAN FLOW ---
+- tapOn: "${output.keuangan_page.sakuLainnyaPemasukanMenu}"
+- assertVisible: "${output.keuangan_page.pemasukanTitle}"
+
+# [KEU-79] View summary pemasukan saku lainnya (pro)
+- assertVisible: "${output.keuangan_page.totalPemasukanLabel}"
+- assertVisible: "${output.keuangan_page.totalPenanamanModalLabel}"
+- assertVisible: "${output.keuangan_page.totalPinjamanLabel}"
+
+# [KEU-78] View by category pemasukan saku lainnya (pro)
+- tapOn: "${output.keuangan_page.pillPenanamanModal}"
+- tapOn: "${output.keuangan_page.pillPinjaman}"
+- tapOn: "${output.keuangan_page.pillSemuaPemasukan}"
+
+# [KEU-75] Add pemasukan saku lainnya (pro)
+- tapOn:
+    point: "${output.keuangan_page.addPengeluaranButtonPoint}"
+- assertVisible: "${output.keuangan_page.tambahPemasukanTitle}"
+- tapOn:
+    point: "${output.keuangan_page.tanggalPemasukanPickerPoint}"
+- tapOn: "${output.keuangan_page.datePickerConfirmOke}"
+- tapOn:
+    point: "${output.keuangan_page.namaPemasukanInputPoint}"
+- inputText: "Modal Kasir"
+- pressKey: "enter"
+- tapOn:
+    point: "${output.keuangan_page.totalPemasukanInputPoint}"
+- inputText: "100000"
+- pressKey: "enter"
+- tapOn:
+    point: "${output.keuangan_page.simpanPengeluaranPoint}"
+- assertVisible: "${output.keuangan_page.confirmDialogTitle}"
+- tapOn: "${output.keuangan_page.confirmDialogYa}"
+- assertVisible: "${output.keuangan_page.pemasukanTitle}"
+- assertVisible: ".*Modal Kasir.*"
+
+# [KEU-76] Edit Pemasukan saku lainnya (pro)
+- tapOn: ".*Modal Kasir.*"
+- assertVisible: "${output.keuangan_page.detailPemasukanTitle}"
+- tapOn:
+    point: "${output.keuangan_page.editPengeluaranPoint}"
+- tapOn:
+    point: "${output.keuangan_page.simpanPengeluaranPoint}"
+- assertVisible: "${output.keuangan_page.confirmDialogTitle}"
+- tapOn: "${output.keuangan_page.confirmDialogYa}"
+- assertVisible: "${output.keuangan_page.detailPemasukanTitle}"
+
+# [KEU-77] Delete Pemasukan saku lainnya (pro)
+- tapOn:
+    point: "${output.keuangan_page.deletePengeluaranPoint}"
+- assertVisible: "${output.keuangan_page.confirmDialogTitle}"
+- tapOn: "${output.keuangan_page.confirmDialogYa}"
+- assertVisible: "${output.keuangan_page.pemasukanTitle}"
+
+# --- PENGELUARAN FLOW ---
+- tapOn: "${output.keuangan_page.sakuLainnyaPengeluaranMenu}"
+- assertVisible: "${output.keuangan_page.pengeluaranTitle}"
+
+# [KEU-74] View summary pengeluaran saku lainnya (pro)
+- assertVisible: "${output.keuangan_page.totalBelanjaModalLabel}"
+- assertVisible: "${output.keuangan_page.totalOperasionalLabel}"
+
+# [KEU-73] View by category pengeluaran saku lainnya (pro)
+- tapOn: "${output.keuangan_page.categoryBelanjaModalPill}"
+- tapOn: "${output.keuangan_page.categoryOperasionalPill}"
+- tapOn: "${output.keuangan_page.categorySemuaPill}"
+
+# [KEU-70] Add pengeluaran saku lainnya (pro)
+- tapOn:
+    point: "${output.keuangan_page.addPengeluaranButtonPoint}"
+- assertVisible: "${output.keuangan_page.tambahPengeluaranTitle}"
+- tapOn:
+    point: "${output.keuangan_page.tanggalPengeluaranPickerPoint}"
+- tapOn: "${output.keuangan_page.datePickerConfirmOke}"
+- tapOn:
+    point: "${output.keuangan_page.namaTransaksiInputPoint}"
+- inputText: "Beli Plastik"
+- pressKey: "enter"
+- tapOn:
+    point: "${output.keuangan_page.totalPengeluaranInputPoint}"
+- inputText: "15000"
+- pressKey: "enter"
+- tapOn:
+    point: "${output.keuangan_page.simpanPengeluaranPoint}"
+- assertVisible: "${output.keuangan_page.confirmDialogTitle}"
+- tapOn: "${output.keuangan_page.confirmDialogYa}"
+- assertVisible: "${output.keuangan_page.pengeluaranTitle}"
+- assertVisible: ".*Beli Plastik.*"
+
+# [KEU-71] Edit pengeluaran saku lainnya (pro)
+- tapOn: ".*Beli Plastik.*"
+- assertVisible: "${output.keuangan_page.detailPengeluaranTitle}"
+- tapOn:
+    point: "${output.keuangan_page.editPengeluaranPoint}"
+- tapOn:
+    point: "${output.keuangan_page.simpanPengeluaranPoint}"
+- assertVisible: "${output.keuangan_page.confirmDialogTitle}"
+- tapOn: "${output.keuangan_page.confirmDialogYa}"
+- assertVisible: "${output.keuangan_page.detailPengeluaranTitle}"
+
+# [KEU-72] Delete pengeluaran saku lainnya (pro)
+- tapOn:
+    point: "${output.keuangan_page.deletePengeluaranPoint}"
+- assertVisible: "${output.keuangan_page.confirmDialogTitle}"
+- tapOn: "${output.keuangan_page.confirmDialogYa}"
+- assertVisible: "${output.keuangan_page.pengeluaranTitle}"
+
+# --- REKAP TRANSAKSI FLOW ---
+- tapOn: "${output.keuangan_page.tabRekapTransaksi}"
+- assertVisible: "${output.keuangan_page.rekapRiwayatTransaksiTitle}"
+
+# [KEU-81] View summary rekap transaksi saku lainnya (pro)
+- assertVisible: "${output.keuangan_page.totalLabaLabel}"
+- assertVisible: "${output.keuangan_page.totalPemasukanLabel}"
+- assertVisible: "${output.keuangan_page.rekapTotalPengeluaranLabel}"
+
+# [KEU-80] search transaction rekap transaksi saku lainnya (pro)
+- tapOn: "${output.keuangan_page.rekapSearchInputHint}"
+- inputText: "INV"
+- pressKey: "enter"
+- eraseText: 5
+- pressKey: "enter"
+
+# Navigate back to pocket hub
+- tapOn: "${output.keuangan_page.backButton}"
+- assertVisible: "${output.keuangan_page.sakuLainnyaRekapMenu}"
+
+# [KEU-68] Delete saku Lainnya (pro)
+- tapOn:
+    point: "${output.keuangan_page.moreOptionsPoint}"
+- assertVisible: "${output.keuangan_page.deleteSakuConfirmButton}"
+- tapOn: "${output.keuangan_page.deleteSakuConfirmButton}"
+- assertVisible: "${output.keuangan_page.emptySakuLainnyaHint}"
+
+# [TEARDOWN] Return to Dashboard
+- tapOn: "${output.keuangan_page.backButton}"
+- assertVisible: "${output.dashboard_page.overviewLabel}"

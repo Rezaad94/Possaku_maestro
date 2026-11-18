@@ -1,0 +1,104 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - lain-lain
+  - toko-online
+---
+- runScript:
+    file: ../../../pages/login/login_credential.js
+- runScript:
+    file: ../../../pages/login/login_page.js
+- runScript:
+    file: ../../../pages/lain_lain/toko_online_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# Dismiss any lingering modals
+- tapOn:
+    text: "Mengerti"
+    optional: true
+- tapOn:
+    text: "Tutup"
+    optional: true
+
+# [TOKO-01] Navigasi & Onboarding Toko Online
+- tapOn:
+    text: "Lain-Lain"
+    optional: true
+- tapOn:
+    point: "876, 1490"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# Open Toko Onlineku tile from grid
+- tapOn:
+    text: "Toko\nOnlineku"
+    optional: true
+- tapOn:
+    point: "540, 1206"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# Dismiss onboarding guide if present
+- tapOn:
+    text: "Lewati"
+    optional: true
+- tapOn:
+    text: "Lanjutkan"
+    optional: true
+- tapOn:
+    text: "Selesai"
+    optional: true
+
+# Verify Toko Online screen elements
+- assertVisible: "${output.toko_online_page.tokoOnlineTitle}"
+- assertVisible: "Pengaturan Toko Onlineku"
+- assertVisible: "${output.toko_online_page.qrCodeTokomuText}"
+
+# [TOKO-02] Copy store link
+- tapOn:
+    point: "${output.toko_online_page.copyLinkPoint}"
+- assertVisible:
+    text: "${output.toko_online_page.copiedToastText}"
+- runScript:
+    file: ../../../pages/delay.js
+
+# [TOKO-03] Share store link
+- tapOn:
+    point: "${output.toko_online_page.shareLinkPoint}"
+- runScript:
+    file: ../../../pages/delay.js
+# Verify Android Share Sheet has opened
+- assertVisible:
+    text: ".*Share.*|.*Quick Share.*|.*Drive.*|.*Copy.*"
+# Dismiss share sheet by pressing back
+- back
+- runScript:
+    file: ../../../pages/delay.js
+# Verify back on Toko Online
+- assertVisible: "${output.toko_online_page.tokoOnlineTitle}"
+
+# [TOKO-04] View QR code
+- tapOn:
+    point: "${output.toko_online_page.qrCodeTokomuBtnPoint}"
+- runScript:
+    file: ../../../pages/delay.js
+# Verify QR Code preview screen elements
+- assertVisible: "${output.toko_online_page.qrCodeTitle}"
+- assertVisible: "${output.toko_online_page.qrCodeImageText}"
+- assertVisible: "${output.toko_online_page.printToPdfBtnText}"
+# Return to Toko Online
+- tapOn:
+    point: "${output.toko_online_page.kembaliBtnPoint}"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: "${output.toko_online_page.tokoOnlineTitle}"

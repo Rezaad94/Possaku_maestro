@@ -1,0 +1,49 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - lain-lain
+  - cetak-struk
+  - struk-smoke
+---
+- runScript:
+    file: ../../../pages/login/login_credential.js
+- runScript:
+    file: ../../../pages/login/login_page.js
+- runScript:
+    file: ../../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../../pages/lain_lain/cetak_struk_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Dismiss onboarding dialog if visible
+- tapOn:
+    text: "Mengerti"
+    optional: true
+
+# [SETUP] Open Lain-Lain modal
+- tapOn:
+    point: "${output.cetak_struk_page.lainLainMenuPoint}"
+- assertVisible: "${output.cetak_struk_page.cetakStrukMenuButton}"
+
+# [STRUK-01] Open Cetak Struk and verify initial empty state layout
+- tapOn:
+    point: "${output.cetak_struk_page.cetakStrukMenuPoint}"
+- assertVisible: "${output.cetak_struk_page.headerTitle}"
+- assertVisible: "${output.cetak_struk_page.emptyProductTitle}"
+- assertVisible: "${output.cetak_struk_page.totalLabel}"
+- assertVisible: "${output.cetak_struk_page.katalogProdukButton}"
+- assertVisible: "${output.cetak_struk_page.produkKostumButton}"
+- assertVisible: "${output.cetak_struk_page.previewButton}"
+
+# Return to Dashboard
+- tapOn:
+    point: "${output.cetak_struk_page.backButtonPoint}"
+- assertVisible: "${output.dashboard_page.overviewLabel}"

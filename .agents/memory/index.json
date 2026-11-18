@@ -1,0 +1,67 @@
+{
+  "version": "1.0.0",
+  "project": "com.cloudiex.possaku",
+  "categories": {
+    "auth": {
+      "file": "domains/auth-possaku.md",
+      "keywords": ["login", "pin", "phone", "credentials", "otp", "session", "auth"]
+    },
+    "catalog": {
+      "file": "domains/pos-catalog.md",
+      "keywords": ["product", "katalog", "decimal", "variant", "custom", "sku", "barcode"]
+    },
+    "cart_checkout": {
+      "file": "domains/cart-checkout.md",
+      "keywords": ["cart", "keranjang", "diskon", "pajak", "bayar", "tunai", "hutang", "qris", "debit", "antrian", "total", "checkout", "kasir_utils", "dynamic"]
+    },
+    "store_shifts": {
+      "file": "domains/store-shifts.md",
+      "keywords": ["shift", "buka_toko", "tutup_toko", "open_store", "close_store", "kas_awal"]
+    },
+    "kasir_locators": {
+      "file": "ui-locators/kasir.md",
+      "keywords": ["kasir", "tambah", "keranjang", "bayar", "kategori", "variant", "qty"]
+    },
+    "auth_locators": {
+      "file": "ui-locators/auth.md",
+      "keywords": ["phone_input", "pin_keypad", "btn_login", "welcome_toast", "alert_error"]
+    },
+    "dashboard_locators": {
+      "file": "ui-locators/dashboard.md",
+      "keywords": ["dashboard", "ringkasan", "filter_date", "total_penjualan", "transaksi"]
+    },
+    "usahaku_locators": {
+      "file": "ui-locators/usahaku.md",
+      "keywords": ["usahaku", "status_toko", "kelola_toko", "modal_awal", "riwayat_shift"]
+    },
+    "pelanggan_locators": {
+      "file": "ui-locators/daftar-pelanggan.md",
+      "keywords": ["pelanggan", "tambah_pelanggan", "cari_pelanggan", "customer"]
+    },
+    "settings_locators": {
+      "file": "ui-locators/lain-lain.md",
+      "keywords": ["settings", "pengaturan", "toko_online", "printer", "lain_lain"]
+    },
+    "keyboard_obstruction": {
+      "file": "failure-patterns/soft-keyboard-obstruction.md",
+      "keywords": ["keyboard", "input_obscured", "hideKeyboard", "pressKey_enter", "two_tap", "tutup", "ime"]
+    },
+    "device_connection": {
+      "file": "failure-patterns/device-connection.md",
+      "keywords": ["adb", "device_offline", "emulator_crash", "unauthorized", "connection_lost"]
+    },
+    "scroll_lazy_rendering": {
+      "file": "failure-patterns/scroll-lazy-rendering.md",
+      "keywords": ["scroll", "swipe", "not_visible", "lazy_column", "recyclerview", "compose"]
+    },
+    "step_traceability": {
+      "file": "failure-patterns/step-traceability.md",
+      "keywords": ["inject_steps", "step_comments", "report_html", "debug_out", "traceability"]
+    },
+    "timing_and_delays": {
+      "file": "failure-patterns/flakiness-and-timing.md",
+      "keywords": ["delay", "sleep", "timeout", "assertVisible", "flaky", "ensure_logged_in", "session_reuse", "airplane_mode"]
+    }
+  }
+}
+

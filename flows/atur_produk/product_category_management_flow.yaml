@@ -1,0 +1,64 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - atur-produk
+  - category
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/atur_produk/atur_produk_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [PROD-01] Open Atur Produk menu from Dashboard
+- tapOn: "${output.dashboard_page.aturProdukMenuButton}"
+- tapOn:
+    text: "Lewati"
+    optional: true
+- tapOn:
+    text: "Selesai"
+    optional: true
+- assertVisible: "${output.atur_produk_page.headerTitle}"
+
+# [PROD-15] Open Kategori Produk from overflow menu
+- tapOn:
+    point: "${output.atur_produk_page.moreMenuPoint}"
+- assertVisible: "${output.atur_produk_page.advancedSettingsTitle}"
+- tapOn: "${output.atur_produk_page.kategoriProdukMenu}"
+- assertVisible: "${output.atur_produk_page.categoryListTitle}"
+- assertVisible: "${output.atur_produk_page.categoryInstructionText}"
+- assertVisible: "Semua"
+- assertVisible: "Sembako"
+
+# [PROD-16] Change sort category (drag / reorder simulation)
+- swipe:
+    start: "50%,55%"
+    end: "50%,70%"
+
+# [PROD-17] Save Category order
+- tapOn: "${output.atur_produk_page.categorySaveButton}"
+- assertVisible: "Konfirmasi.*"
+- tapOn: "Ya"
+- assertVisible: ".*Berhasil disimpan.*"
+- tapOn:
+    point: "540,1150"
+- assertVisible: "${output.atur_produk_page.categoryListTitle}"
+- tapOn: "${output.atur_produk_page.backButton}"
+- assertVisible: "${output.atur_produk_page.headerTitle}"
+
+# [PROD-18] Return to Dashboard
+- tapOn: "${output.atur_produk_page.backButton}"
+- assertVisible: "${output.dashboard_page.overviewLabel}"
+

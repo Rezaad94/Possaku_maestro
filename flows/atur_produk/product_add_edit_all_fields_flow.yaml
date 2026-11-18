@@ -1,0 +1,159 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - atur-produk
+  - product-all-fields
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/atur_produk/atur_produk_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [PROD-01] Open Atur Produk menu from Dashboard
+- tapOn: "${output.dashboard_page.aturProdukMenuButton}"
+- tapOn:
+    text: "Lewati"
+    optional: true
+- tapOn:
+    text: "Selesai"
+    optional: true
+- assertVisible: "${output.atur_produk_page.headerTitle}"
+
+# [PROD-30] Add new product with all fields filled
+- tapOn:
+    point: "${output.atur_produk_page.fabAddPoint}"
+- assertVisible: "${output.atur_produk_page.addChoiceTitle}"
+- tapOn: "${output.atur_produk_page.addSingleProductButton}"
+- assertVisible: "Detail Produk"
+
+# Fill Toko
+- assertVisible: "Pilih Toko"
+- tapOn: "Pilih Toko"
+- assertVisible: "new ref wija"
+- tapOn:
+    point: "${output.atur_produk_page.storeCheckboxPoint}"
+- tapOn:
+    point: "${output.atur_produk_page.scrimDismissPoint}"
+- assertVisible: "Detail Produk"
+
+# Fill Kategori
+- assertVisible: "Pilih Kategori"
+- tapOn: "Pilih Kategori"
+- assertVisible: "Sembako"
+- tapOn: "Sembako"
+- assertVisible: "Detail Produk"
+
+# Fill Nama Produk
+- tapOn:
+    below: "${output.atur_produk_page.namaProdukLabel}"
+- inputText: "Kopi Luwak Premium"
+- pressKey: "enter"
+
+# Scroll down to Satuan and Stock section
+- swipe:
+    start: "50%,80%"
+    end: "50%,35%"
+
+# Fill Satuan
+- tapOn: "Tentukan Satuan"
+- assertVisible: "Pilih Satuan"
+- tapOn: "Pcs"
+- tapOn: "${output.atur_produk_page.categorySaveButton}"
+- assertVisible: "Tambah Produk"
+
+# Fill Jumlah Stok & Desimal
+- tapOn:
+    below: "${output.atur_produk_page.jumlahStokLabel}"
+- inputText: "100"
+- pressKey: "enter"
+- tapOn: "${output.atur_produk_page.decimalStockCheckbox}"
+
+# Scroll down to Pricing and Barcode section
+- swipe:
+    start: "50%,80%"
+    end: "50%,25%"
+
+# Fill Harga Jual
+- tapOn:
+    below: "${output.atur_produk_page.hargaJualLabel}"
+- inputText: "50000"
+- pressKey: "enter"
+
+# Fill Harga Modal
+- tapOn:
+    below: "${output.atur_produk_page.hargaModalLabel}"
+- inputText: "30000"
+- pressKey: "enter"
+
+# Fill Kode Barcode
+- tapOn:
+    below: "${output.atur_produk_page.kodeBarcodeLabel}"
+- inputText: "8991234567890"
+- pressKey: "enter"
+
+# Save Product and confirm
+- tapOn: "${output.atur_produk_page.saveProductButton}"
+- assertVisible: "Konfirmasi.*"
+- tapOn: "Ya"
+
+# Post-Creation Success Screen
+- assertVisible: "${output.atur_produk_page.successModalTitle}"
+- tapOn: "${output.atur_produk_page.keHalamanBerandaButton}"
+- assertVisible: "${output.dashboard_page.overviewLabel}"
+
+# Re-enter Atur Produk to verify created product
+- tapOn: "${output.dashboard_page.aturProdukMenuButton}"
+- assertVisible: "${output.atur_produk_page.headerTitle}"
+- assertVisible: ".*Kopi Luwak Premium.*"
+
+# [PROD-31] Edit product with all fields updated
+- tapOn: ".*Kopi Luwak Premium.*"
+- assertVisible: "${output.atur_produk_page.detailHeaderTitle}"
+
+# Toggle Status Produk (Active <-> Inactive toggle while at top of page)
+- tapOn:
+    point: "${output.atur_produk_page.statusProdukSwitchPoint}"
+- tapOn:
+    point: "${output.atur_produk_page.statusProdukSwitchPoint}"
+
+# Update Nama Produk
+- tapOn:
+    below: "${output.atur_produk_page.namaProdukLabel}"
+- eraseText: 25
+- inputText: "Kopi Luwak Istimewa"
+- pressKey: "enter"
+
+# Update Product and confirm
+- tapOn: "${output.atur_produk_page.updateProductButton}"
+- assertVisible: "Konfirmasi.*"
+- tapOn: "Ya"
+- assertVisible: "${output.atur_produk_page.headerTitle}"
+- assertVisible: ".*Kopi Luwak Istimewa.*"
+
+# [PROD-32] Clean up (Delete edited test product)
+- tapOn: ".*Kopi Luwak Istimewa.*"
+- assertVisible: "${output.atur_produk_page.detailHeaderTitle}"
+- tapOn:
+    point: "${output.atur_produk_page.productMoreMenuPoint}"
+- assertVisible: "${output.atur_produk_page.deleteProductMenu}"
+- tapOn: "${output.atur_produk_page.deleteProductMenu}"
+- assertVisible: "${output.atur_produk_page.deleteConfirmModalTitle}"
+- tapOn: "${output.atur_produk_page.deleteConfirmYesButton}"
+- assertVisible: "${output.atur_produk_page.headerTitle}"
+
+# [PROD-33] Return to Dashboard from Atur Produk
+- tapOn: "${output.atur_produk_page.backButton}"
+- assertVisible: "${output.dashboard_page.overviewLabel}"

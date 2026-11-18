@@ -1,0 +1,235 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - lain-lain
+  - daftar-karyawan
+---
+- runScript:
+    file: ../../../pages/login/login_credential.js
+- runScript:
+    file: ../../../pages/login/login_page.js
+- runScript:
+    file: ../../../pages/lain_lain/daftar_karyawan_page.js
+- runScript:
+    file: ../../../pages/lain_lain/generate_employee_data.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# Dismiss any lingering modals
+- tapOn:
+    text: "Mengerti"
+    optional: true
+- tapOn:
+    text: "Tutup"
+    optional: true
+
+# [KARY-01] Navigasi & Onboarding Daftar Karyawan
+- tapOn:
+    text: "Lain-Lain"
+    optional: true
+- tapOn:
+    point: "876, 1490"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# Open Daftar Karyawan tile
+- tapOn:
+    text: "Daftar\nKaryawan"
+    optional: true
+- tapOn:
+    point: "858, 1206"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# Dismiss onboarding guide if present
+- tapOn:
+    text: "Lewati"
+    optional: true
+- tapOn:
+    text: "Lanjutkan"
+    optional: true
+
+# Verify Daftar Karyawan screen elements
+- assertVisible: "${output.daftar_karyawan_page.daftarKaryawanTitle}"
+- assertVisible: "${output.daftar_karyawan_page.searchBarText}"
+- assertVisible: "${output.daftar_karyawan_page.toggleGajiText}"
+
+# [KARY-02] Search Employee
+# Search existing employee "uaua"
+- tapOn:
+    point: "${output.daftar_karyawan_page.searchBarPoint}"
+- runScript:
+    file: ../../../pages/delay.js
+- inputText: "uaua"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: ".*uaua.*"
+
+# Search non-existent keyword "zzzz"
+- eraseText: 10
+- inputText: "zzzz"
+- back
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: ".*tidak.*ditemukan.*"
+- assertVisible: "Tambahkan Karyawan"
+
+# Clear search to restore list
+- tapOn:
+    point: "${output.daftar_karyawan_page.searchBarPoint}"
+- eraseText: 10
+- back
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: ".*uaua.*"
+
+# [KARY-03] View Employee Salary
+- tapOn:
+    point: "${output.daftar_karyawan_page.toggleGajiPoint}"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: ".*Gaji Bulanan.*"
+
+# [KARY-04] Add Employee
+- tapOn:
+    point: "${output.daftar_karyawan_page.addEmployeeFabPoint}"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: "${output.daftar_karyawan_page.buatKaryawanTitle}"
+
+# Fill employee details
+- tapOn:
+    point: "${output.daftar_karyawan_page.inputNamaPoint}"
+- runScript:
+    file: ../../../pages/delay.js
+- inputText: "${output.employeeName}"
+# Dismiss keyboard to restore layout before tapping phone field
+- back
+- runScript:
+    file: ../../../pages/delay.js
+- tapOn:
+    point: "${output.daftar_karyawan_page.inputPhonePoint}"
+- runScript:
+    file: ../../../pages/delay.js
+- inputText: "${output.employeePhone}"
+- back
+- runScript:
+    file: ../../../pages/delay.js
+
+# Save and confirm
+- tapOn: "Simpan"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: ".*Apakah semua informasi sudah benar.*"
+- tapOn: "Ya"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: "${output.daftar_karyawan_page.successTitleRegex}"
+
+# Return to Beranda
+- tapOn:
+    point: "${output.daftar_karyawan_page.backToHomeSuccessBtnPoint}"
+- runScript:
+    file: ../../../pages/delay.js
+
+# Re-enter Daftar Karyawan
+- tapOn:
+    text: "Lain-Lain"
+    optional: true
+- tapOn:
+    point: "876, 1490"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+- tapOn:
+    point: "858, 1206"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: ".*${output.employeeName}.*"
+
+# [KARY-05] Edit Employee
+- tapOn: ".*${output.employeeName}.*"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: "${output.daftar_karyawan_page.detailKaryawanTitle}"
+
+# Tap Update on Informasi Personal
+- tapOn:
+    text: "Update"
+    optional: true
+- tapOn:
+    point: "892, 383"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: "Update Info Karyawan"
+
+# Edit name
+- tapOn:
+    point: "${output.daftar_karyawan_page.updateNamaPoint}"
+- runScript:
+    file: ../../../pages/delay.js
+- eraseText: 25
+- inputText: "${output.employeeNameEdit}"
+- back
+- runScript:
+    file: ../../../pages/delay.js
+- tapOn: "Simpan"
+- runScript:
+    file: ../../../pages/delay.js
+- tapOn: "Ya"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: ".*${output.employeeNameEdit}.*"
+
+# [KARY-08] Change PIN
+- tapOn:
+    point: "${output.daftar_karyawan_page.topRightMenuPoint}"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: "${output.daftar_karyawan_page.lanjutanModalTitle}"
+- tapOn: "Ubah Pin"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: "${output.daftar_karyawan_page.ubahPinTitle}"
+- assertVisible: "Masukkan PIN baru Anda"
+- assertVisible: "Ketik ulang pin baru"
+# Return to Detail Karyawan
+- tapOn:
+    point: "${output.daftar_karyawan_page.kembaliBtnPoint}"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: "${output.daftar_karyawan_page.detailKaryawanTitle}"
+
+# [KARY-12] Delete Employee
+- tapOn:
+    point: "${output.daftar_karyawan_page.topRightMenuPoint}"
+- runScript:
+    file: ../../../pages/delay.js
+- tapOn: "Hapus Karyawan"
+- runScript:
+    file: ../../../pages/delay.js
+- tapOn:
+    point: "${output.daftar_karyawan_page.confirmDeleteEmployeePoint}"
+    optional: true
+- tapOn:
+    text: "Hapus Karyawan"
+    optional: true
+- tapOn:
+    text: "Ya"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# Verify back on Daftar Karyawan and deleted employee is gone
+- assertVisible: "${output.daftar_karyawan_page.daftarKaryawanTitle}"
+- assertNotVisible: ".*${output.employeeNameEdit}.*"

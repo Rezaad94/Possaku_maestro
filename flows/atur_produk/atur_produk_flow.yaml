@@ -1,0 +1,50 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - dashboard
+  - atur-produk
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/atur_produk/atur_produk_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Dismiss onboarding dialog if visible
+- tapOn:
+    text: "Mengerti"
+    optional: true
+
+# [PROD-01] Open Atur Produk menu from Dashboard
+- tapOn: "${output.dashboard_page.aturProdukMenuButton}"
+
+# [SETUP] Dismiss product catalog coachmark overlays if visible
+- tapOn:
+    text: "Lewati"
+    optional: true
+- tapOn:
+    text: "Selesai"
+    optional: true
+
+# [PROD-02] Assert Catalog screen header and category tabs are visible
+- assertVisible: "${output.atur_produk_page.headerTitle}"
+- assertVisible: "${output.atur_produk_page.categorySemuaRegex}"
+
+# [PROD-03] Return to Dashboard from Atur Produk
+- tapOn:
+    text: "${output.atur_produk_page.backButton}"
+    optional: true
+- assertVisible: "${output.dashboard_page.overviewLabel}"
+

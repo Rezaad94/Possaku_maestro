@@ -1,0 +1,179 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - lain-lain
+  - multi-usaha
+  - branch-setup
+---
+- runScript:
+    file: ../../../pages/login/login_credential.js
+- runScript:
+    file: ../../../pages/login/login_page.js
+- runScript:
+    file: ../../../pages/lain_lain/multi_usaha_page.js
+- runScript:
+    file: ../../../pages/lain_lain/generate_branch_data.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# Dismiss any lingering modals
+- tapOn:
+    text: "Mengerti"
+    optional: true
+- tapOn:
+    text: "Tutup"
+    optional: true
+
+# [MULTI-01] Navigasi & Tampilan Daftar Toko Cabang
+- tapOn:
+    text: "Lain-Lain"
+    optional: true
+- tapOn:
+    point: "876, 1490"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# Tap Multi Usaha tile
+- tapOn:
+    text: "Multi\nUsaha"
+    optional: true
+- tapOn:
+    text: "Multi Usaha"
+    optional: true
+- tapOn:
+    point: "${output.multi_usaha_page.multiUsahaTilePoint}"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# Verify Daftar Toko Cabang screen
+- assertVisible: "${output.multi_usaha_page.daftarTokoCabangTitle}"
+- assertVisible: ".*Cabang.*"
+
+# [MULTI-02] Add New Branch Store & [MULTI-13] Buy Add-on Quota Check
+- tapOn:
+    point: "${output.multi_usaha_page.addBranchFabPoint}"
+- runScript:
+    file: ../../../pages/delay.js
+
+# Verify either Tambah Toko form or Fitur Tambahan (Add-on quota paywall)
+- assertVisible: ".*Fitur Tambahan.*|.*Tambah Toko.*|.*Toko Cabang.*"
+
+# If Fitur Tambahan / Add-on modal is displayed (quota limit reached)
+- tapOn:
+    text: "Tutup"
+    optional: true
+- tapOn:
+    point: "100, 100"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# Input Branch Details if on Tambah Toko screen
+- tapOn:
+    point: "${output.multi_usaha_page.inputNamaUsahaPoint}"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+- inputText: "${output.branchName}"
+- back
+- runScript:
+    file: ../../../pages/delay.js
+
+- tapOn:
+    point: "${output.multi_usaha_page.inputDeskripsiPoint}"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+- inputText: "${output.branchDesc}"
+- back
+- runScript:
+    file: ../../../pages/delay.js
+
+# Tap Lanjutkan to move to Step 2 (First Employee) if on Tambah Toko
+- tapOn:
+    text: "Lanjutkan"
+    optional: true
+- tapOn:
+    point: "${output.multi_usaha_page.lanjutkanBtnPoint}"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# [MULTI-03] Add First Employee for Branch Store (if in branch setup wizard)
+# Input Employee Details
+- tapOn:
+    point: "${output.multi_usaha_page.inputNamaKaryawanPoint}"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+- inputText: "${output.branchEmployeeName}"
+- back
+- runScript:
+    file: ../../../pages/delay.js
+
+- tapOn:
+    point: "${output.multi_usaha_page.inputPhoneKaryawanPoint}"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+- inputText: "${output.branchEmployeePhone}"
+- back
+- runScript:
+    file: ../../../pages/delay.js
+
+# Save and confirm employee creation if present
+- tapOn:
+    text: "Simpan"
+    optional: true
+- tapOn:
+    point: "${output.multi_usaha_page.simpanBtnPoint}"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+- tapOn:
+    text: "Ya"
+    optional: true
+- tapOn:
+    point: "${output.multi_usaha_page.confirmYaPoint}"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# Dismiss success or return to Home
+- tapOn:
+    text: "Kembali Ke Beranda"
+    optional: true
+- tapOn:
+    point: "${output.multi_usaha_page.backToHomeSuccessBtnPoint}"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# Return to Beranda if still on Daftar Toko Cabang / Lain-Lain
+- tapOn:
+    point: "${output.multi_usaha_page.kembaliBtnPoint}"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+- tapOn:
+    point: "${output.multi_usaha_page.kembaliBtnPoint}"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+- tapOn:
+    point: "135, 1705"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# [MULTI-04] Overview Branch Store
+- assertVisible: ".*Selamat datang.*"

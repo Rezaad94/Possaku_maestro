@@ -1,0 +1,42 @@
+appId: ${APP_ID}
+tags:
+  - regression-p2
+  - dashboard
+  - filters
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Dismiss onboarding/update dialogs if visible
+- tapOn:
+    text: "Mengerti"
+    optional: true
+
+# [DASH-02] Filter by period (Hari ini, Minggu ini, Bulan ini)
+- tapOn: "${output.dashboard_page.dateFilterButton}"
+- runScript:
+    file: ../../pages/delay.js
+
+# Assert filter options are visible
+- assertVisible: "${output.dashboard_page.filterHeaderLabel}"
+- assertVisible: "${output.dashboard_page.filterOptionHariIni}"
+- assertVisible: "${output.dashboard_page.filterOptionMingguIni}"
+- assertVisible: "${output.dashboard_page.filterOptionBulanIni}"
+
+# Select "Hari ini" option to dismiss/close the filter dropdown
+- tapOn: "${output.dashboard_page.filterOptionHariIni}"
+- runScript:
+    file: ../../pages/delay.js

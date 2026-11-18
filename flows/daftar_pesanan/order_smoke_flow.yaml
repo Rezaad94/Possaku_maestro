@@ -1,0 +1,59 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - pesanan
+  - order-smoke
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/daftar_pesanan/daftar_pesanan_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Dismiss onboarding dialog if visible
+- tapOn:
+    text: "Mengerti"
+    optional: true
+
+# [ORDER-01] Open Daftar Pesanan from Dashboard and verify layout
+- tapOn:
+    point: "540, 1490"
+- runFlow:
+    when:
+      visible: ".*transaksi aktif.*"
+    commands:
+      - back
+- assertVisible: "${output.daftar_pesanan_page.headerTitle}"
+- assertVisible: "${output.daftar_pesanan_page.tabSemua}"
+- assertVisible: "${output.daftar_pesanan_page.tabTerbayar}"
+- assertVisible: "${output.daftar_pesanan_page.tabBelumTerbayar}"
+- assertVisible: "${output.daftar_pesanan_page.resetNomorAntrianButton}"
+
+# [ORDER-02] Refresh button in top header
+- tapOn:
+    point: "${output.daftar_pesanan_page.refreshButtonPoint}"
+- assertVisible: "${output.daftar_pesanan_page.headerTitle}"
+
+# [ORDER-03] Open and dismiss Daftar Pesanan Info / Rule dialog
+- tapOn:
+    point: "${output.daftar_pesanan_page.infoButtonPoint}"
+- assertVisible: "${output.daftar_pesanan_page.infoModalText}"
+- back
+- assertVisible: "${output.daftar_pesanan_page.headerTitle}"
+
+# Return to Dashboard
+- tapOn:
+    point: "${output.daftar_pesanan_page.backButtonPoint}"
+- assertVisible: "${output.dashboard_page.overviewLabel}"

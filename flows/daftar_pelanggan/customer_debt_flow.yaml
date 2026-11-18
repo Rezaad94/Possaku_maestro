@@ -1,0 +1,126 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - daftar-pelanggan
+  - customer-debt
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/daftar_pelanggan/daftar_pelanggan_page.js
+- runScript:
+    file: ../../pages/keuangan/keuangan_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Open Daftar Pelanggan
+- tapOn:
+    point: "${output.daftar_pelanggan_page.daftarPelangganIconPoint}"
+- tapOn:
+    text: "${output.daftar_pelanggan_page.coachmarkSkipButton}"
+    optional: true
+- tapOn:
+    text: "${output.daftar_pelanggan_page.coachmarkDoneButton}"
+    optional: true
+- assertVisible: "${output.daftar_pelanggan_page.headerTitle}"
+
+# [CUST-07] View customer dept
+- tapOn:
+    point: "${output.daftar_pelanggan_page.toggleDebtSwitchPoint}"
+- assertVisible: ".*Hutang.*"
+- assertVisible: ".*Pelanggan.*"
+
+# Navigate to customer detail
+- tapOn:
+    point: "540, 643"
+- assertVisible: "${output.daftar_pelanggan_page.detailTitle}"
+- tapOn:
+    text: "${output.daftar_pelanggan_page.bayarHutangButton}"
+    optional: true
+- tapOn:
+    point: "${output.daftar_pelanggan_page.bayarHutangButtonPoint}"
+    optional: true
+
+# [CUST-09] Pay off customer debts by transaction
+- runFlow:
+    when:
+      visible: "${output.daftar_pelanggan_page.daftarHutangTitle}"
+    commands:
+      - tapOn:
+          point: "${output.daftar_pelanggan_page.pilihMetodeDropdownPoint}"
+      - tapOn:
+          point: "${output.daftar_pelanggan_page.metodeTotalNilaiHutangDropdownOptionPoint}"
+      - assertVisible: "${output.daftar_pelanggan_page.daftarHutangTitle}"
+
+# [CUST-08] Pay off customer debts at once
+- runFlow:
+    when:
+      visible: "${output.daftar_pelanggan_page.daftarHutangTitle}"
+    commands:
+      - tapOn:
+          point: "${output.daftar_pelanggan_page.pilihMetodeDropdownPoint}"
+      - tapOn:
+          point: "${output.daftar_pelanggan_page.metodeSekaligusDropdownOptionPoint}"
+      - tapOn:
+          point: "${output.daftar_pelanggan_page.cekTagihanButtonPoint}"
+          optional: true
+      - runFlow:
+          when:
+            visible: "${output.daftar_pelanggan_page.infoTagihanTitle}"
+          commands:
+            - tapOn:
+                point: "${output.daftar_pelanggan_page.confirmationCheckBoxPoint}"
+            - tapOn:
+                point: "${output.daftar_pelanggan_page.bayarSubmitButtonPoint}"
+      - assertVisible: "${output.daftar_pelanggan_page.daftarHutangTitle}"
+      - assertVisible: ".*Rp0.*"
+      - tapOn: "${output.daftar_pelanggan_page.backButton}"
+
+# Return to Dashboard
+- tapOn:
+    text: "${output.daftar_pelanggan_page.backButton}"
+    optional: true
+- tapOn:
+    point: "${output.daftar_pelanggan_page.toggleDebtSwitchPoint}"
+    optional: true
+- tapOn:
+    text: "${output.daftar_pelanggan_page.backButton}"
+    optional: true
+- assertVisible: "${output.dashboard_page.overviewLabel}"
+
+# [CUST-10] Download customer dept
+- tapOn:
+    point: "205, 1490"
+- assertVisible: "${output.keuangan_page.headerTitle}"
+- tapOn: "${output.keuangan_page.sakuUtamaCard}"
+- swipe:
+    start: "85%,25%"
+    end: "15%,25%"
+- tapOn: "${output.keuangan_page.tabHutangPelanggan}"
+- assertVisible: "${output.keuangan_page.hutangPelangganTitle}"
+- tapOn:
+    point: "${output.keuangan_page.downloadReportPoint}"
+- tapOn:
+    text: "SAVE"
+    optional: true
+- tapOn:
+    point: "927, 1731"
+    optional: true
+- back:
+    optional: true
+- assertVisible: "${output.keuangan_page.hutangPelangganTitle}"
+- tapOn: "${output.keuangan_page.backButton}"
+- tapOn: "${output.keuangan_page.backButton}"
+- tapOn: "${output.keuangan_page.backButton}"
+- assertVisible: "${output.dashboard_page.overviewLabel}"

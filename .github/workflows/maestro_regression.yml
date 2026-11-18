@@ -1,0 +1,137 @@
+name: Maestro Mobile Test Automation
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      target_flow:
+        description: 'Target flow file or directory (e.g. flows/lain_lain/ or .maestro/regression_suite.yaml)'
+        required: false
+        default: 'flows/lain_lain/toko_online/toko_online_link_qr_flow.yaml'
+      apk_path:
+        description: 'Optional path to APK file (e.g. app-release.apk)'
+        required: false
+        default: ''
+      apk_url:
+        description: 'Optional direct download URL for Possaku APK'
+        required: false
+        default: ''
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  maestro-android-test:
+    name: Run Maestro Android 11 Regression on Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    env:
+      APP_ID: "com.cloudiex.possaku"
+      PHONE_NUMBER: ${{ secrets.POSSAKU_PHONE_NUMBER }}
+      PIN: ${{ secrets.POSSAKU_PIN }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Enable KVM Hardware Acceleration
+        run: |
+          echo "Configuring /dev/kvm permissions for hardware virtualization..."
+          sudo chmod 666 /dev/kvm || true
+          ls -la /dev/kvm
+
+      - name: Set up Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Maestro CLI
+        run: |
+          echo "Installing latest Maestro CLI on Linux..."
+          curl -FsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+          echo "MAESTRO_PATH=$HOME/.maestro/bin" >> $GITHUB_ENV
+
+      - name: Verify Maestro Installation
+        run: |
+          export PATH="$HOME/.maestro/bin:$PATH"
+          maestro --version
+
+      - name: Make Scripts Executable
+        run: |
+          chmod +x run_detailed_test.sh run_suite.sh restore_internet.sh generate_ci_summary.py
+
+      - name: Cache AVD Snapshot
+        uses: actions/cache@v4
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-30-google-apis-x86_64-linux
+
+      - name: Create AVD and Run Maestro Tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          ram-size: 4096M
+          emulator-options: -no-window -no-snapshot -no-audio -no-boot-anim -camera-back none -camera-front none -gpu swiftshader_indirect
+          disable-animations: true
+          script: |
+            export PATH="$HOME/.maestro/bin:$PATH"
+
+            # 1. Device check & online guarantee
+            echo "Connected Android devices on Linux runner:"
+            adb devices
+            ./restore_internet.sh
+
+            # 2. Install APK if URL or path is provided
+            if [ -n "${{ inputs.apk_url }}" ]; then
+              echo "Downloading APK from URL..."
+              curl -fL -o app.apk "${{ inputs.apk_url }}"
+              adb install -r app.apk
+            elif [ -n "${{ inputs.apk_path }}" ] && [ -f "${{ inputs.apk_path }}" ]; then
+              echo "Installing APK from path: ${{ inputs.apk_path }}..."
+              adb install -r "${{ inputs.apk_path }}"
+            fi
+
+            # 3. Resolve target flow
+            TARGET="${{ inputs.target_flow }}"
+            if [ -z "$TARGET" ]; then
+              TARGET="flows/lain_lain/toko_online/toko_online_link_qr_flow.yaml"
+            fi
+
+            echo "=========================================================="
+            echo " Starting Maestro Test Execution in CI (Linux)"
+            echo " Target: $TARGET"
+            echo "=========================================================="
+
+            ./run_suite.sh "$TARGET"
+
+      - name: Generate GitHub Actions Step Summary
+        if: always()
+        run: |
+          python3 generate_ci_summary.py
+
+      - name: Upload Playwright HTML Report Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-playwright-report-linux
+          path: reports/*.html
+          retention-days: 14
+          if-no-files-found: warn

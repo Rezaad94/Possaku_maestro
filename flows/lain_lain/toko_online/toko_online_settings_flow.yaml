@@ -1,0 +1,114 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - lain-lain
+  - toko-online
+---
+- runScript:
+    file: ../../../pages/login/login_credential.js
+- runScript:
+    file: ../../../pages/login/login_page.js
+- runScript:
+    file: ../../../pages/lain_lain/toko_online_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# Dismiss any lingering modals
+- tapOn:
+    text: "Mengerti"
+    optional: true
+- tapOn:
+    text: "Tutup"
+    optional: true
+
+# Navigate to Toko Online
+- tapOn:
+    text: "Lain-Lain"
+    optional: true
+- tapOn:
+    point: "876, 1490"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+- tapOn:
+    text: "Toko\nOnlineku"
+    optional: true
+- tapOn:
+    point: "540, 1206"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# Dismiss onboarding guide if present
+- tapOn:
+    text: "Lewati"
+    optional: true
+- tapOn:
+    text: "Lanjutkan"
+    optional: true
+- tapOn:
+    text: "Selesai"
+    optional: true
+
+# Verify on Toko Online
+- assertVisible: "${output.toko_online_page.tokoOnlineTitle}"
+
+# [TOKO-05] Change Phone number (Nomor WA)
+- tapOn:
+    point: "${output.toko_online_page.updateSettingsBtnPoint}"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: "${output.toko_online_page.editTitle}"
+
+# Tap phone number input, clear and input valid WhatsApp number
+- tapOn:
+    point: "${output.toko_online_page.phoneInputPoint}"
+- runScript:
+    file: ../../../pages/delay.js
+- eraseText: 30
+- inputText: "+6285879214397"
+# Close keyboard
+- back
+- runScript:
+    file: ../../../pages/delay.js
+
+# [TOKO-06] Change Time open store (Jam Buka)
+- tapOn:
+    point: "${output.toko_online_page.jamBukaTokoPoint}"
+- runScript:
+    file: ../../../pages/delay.js
+# Verify time picker opened
+- assertVisible: "Jam Buka"
+- assertVisible: "Jam Tutup"
+# Tap Simpan on time picker
+- tapOn:
+    point: "${output.toko_online_page.pickerSimpanBtnPoint}"
+- runScript:
+    file: ../../../pages/delay.js
+
+# [TOKO-07] Change day open store (Hari Buka)
+# Toggle Senin
+- tapOn:
+    point: "${output.toko_online_page.seninTogglePoint}"
+- runScript:
+    file: ../../../pages/delay.js
+
+# Save all settings using robust text selector
+- tapOn: "Simpan"
+- runScript:
+    file: ../../../pages/delay.js
+
+# Verify back on main Toko Online screen with updated values
+- assertVisible: "${output.toko_online_page.tokoOnlineTitle}"
+- assertVisible: "Jam Buka"
+- assertVisible: "Hari Buka"
+- assertVisible: "Nomor WA"
+- assertVisible: ".*\\+62858.*"

@@ -1,0 +1,112 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - lain-lain
+  - cetak-struk
+  - struk-discount
+---
+- runScript:
+    file: ../../../pages/login/login_credential.js
+- runScript:
+    file: ../../../pages/login/login_page.js
+- runScript:
+    file: ../../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../../pages/lain_lain/cetak_struk_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Dismiss onboarding dialog if visible
+- tapOn:
+    text: "Mengerti"
+    optional: true
+
+# [SETUP] Open Cetak Struk and add product from catalog
+- tapOn:
+    point: "${output.cetak_struk_page.lainLainMenuPoint}"
+- tapOn:
+    point: "${output.cetak_struk_page.cetakStrukMenuPoint}"
+- assertVisible: "${output.cetak_struk_page.headerTitle}"
+- tapOn: "${output.cetak_struk_page.katalogProdukButton}"
+- assertVisible: "${output.cetak_struk_page.katalogTitle}"
+- tapOn: "${output.cetak_struk_page.katalogProductFirstCard}"
+- assertVisible: "${output.cetak_struk_page.variantSheetTitle}"
+- tapOn:
+    point: "${output.cetak_struk_page.variantQtyPlusPoint}"
+- tapOn: "${output.cetak_struk_page.variantTambahkanButton}"
+- assertVisible: "${output.cetak_struk_page.tambahkanKeStrukButton}"
+- tapOn: "${output.cetak_struk_page.tambahkanKeStrukButton}"
+- assertVisible: "${output.cetak_struk_page.headerTitle}"
+
+# [STRUK-07] Add item discount nominal
+- swipe:
+    start: "83%,18%"
+    end: "18%,18%"
+- tapOn:
+    point: "${output.cetak_struk_page.itemEditPencilPoint}"
+- assertVisible: "${output.cetak_struk_page.editProdukTitle}"
+- tapOn:
+    point: "${output.cetak_struk_page.diskonNominalPoint}"
+- tapOn:
+    point: "${output.cetak_struk_page.diskonJumlahInputPoint}"
+- tapOn:
+    point: "540,1487"
+- inputText: "5000"
+- pressKey: "enter"
+- tapOn:
+    text: "Terapkan"
+    optional: true
+- assertVisible: "${output.cetak_struk_page.headerTitle}"
+- assertVisible: "Rp15.000"
+
+# [STRUK-09] Edit added product (Quantity In-Cart)
+- tapOn:
+    point: "${output.cetak_struk_page.itemPlusPoint}"
+- assertVisible: "2"
+- tapOn:
+    point: "${output.cetak_struk_page.itemMinusPoint}"
+- assertVisible: "1"
+
+# [STRUK-08] Add item discount percent & [STRUK-10] Edit added discount
+- swipe:
+    start: "83%,18%"
+    end: "18%,18%"
+- tapOn:
+    point: "${output.cetak_struk_page.itemEditPencilPoint}"
+- assertVisible: "${output.cetak_struk_page.editProdukTitle}"
+- tapOn:
+    point: "${output.cetak_struk_page.diskonPersenPoint}"
+- tapOn:
+    point: "${output.cetak_struk_page.diskonJumlahInputPoint}"
+- tapOn:
+    point: "540,1487"
+- eraseText: 5
+- inputText: "10"
+- pressKey: "enter"
+- tapOn:
+    text: "Terapkan"
+    optional: true
+- assertVisible: "${output.cetak_struk_page.headerTitle}"
+
+# [STRUK-11] Transaction discount nominal & [STRUK-12] Transaction discount percent rollup
+- tapOn: "${output.cetak_struk_page.previewButton}"
+- assertVisible: "${output.cetak_struk_page.previewTitle}"
+- swipe:
+    start: "50%,70%"
+    end: "50%,20%"
+- assertVisible: "Total Diskon"
+- tapOn:
+    point: "${output.cetak_struk_page.backButtonPoint}"
+- assertVisible: "${output.cetak_struk_page.headerTitle}"
+
+# Return to Dashboard
+- tapOn:
+    point: "${output.cetak_struk_page.backButtonPoint}"
+- assertVisible: "${output.dashboard_page.overviewLabel}"

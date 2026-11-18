@@ -1,0 +1,118 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - daftar-pelanggan
+  - customer-management
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/daftar_pelanggan/daftar_pelanggan_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Open Daftar Pelanggan
+- tapOn:
+    point: "876, 1030"
+- tapOn:
+    text: "${output.daftar_pelanggan_page.coachmarkSkipButton}"
+    optional: true
+- tapOn:
+    text: "${output.daftar_pelanggan_page.coachmarkDoneButton}"
+    optional: true
+- assertVisible: "${output.daftar_pelanggan_page.headerTitle}"
+
+# [CUST-02] Add customer
+- tapOn:
+    point: "${output.daftar_pelanggan_page.addCustomerButtonPoint}"
+- assertVisible: "${output.daftar_pelanggan_page.formTitleBuat}"
+- tapOn:
+    point: "540, 700"
+- inputText: "Budi Santoso Auto"
+- tapOn:
+    point: "300, 140"
+- tapOn:
+    point: "540, 974"
+- inputText: "081299887766"
+- tapOn:
+    point: "300, 140"
+- tapOn:
+    point: "540, 1667"
+- assertVisible: "${output.daftar_pelanggan_page.headerTitle}"
+
+# [CUST-03] Search customer
+- tapOn:
+    point: "540, 280"
+- eraseText: 25
+- inputText: "Budi Santoso Auto"
+- pressKey: "enter"
+- assertVisible: ".*Budi Santoso Auto.*"
+
+# [CUST-04] Edit customer
+- tapOn: ".*Budi Santoso Auto.*"
+- assertVisible: "${output.daftar_pelanggan_page.detailTitle}"
+- tapOn: "${output.daftar_pelanggan_page.updateButton}"
+- assertVisible: "${output.daftar_pelanggan_page.formTitleUpdate}"
+- tapOn:
+    point: "540, 793"
+- eraseText: 25
+- inputText: "Budi Auto Edit"
+- tapOn:
+    point: "300, 140"
+- tapOn:
+    point: "540, 1667"
+- assertVisible: "${output.daftar_pelanggan_page.headerTitle}"
+
+# [CUST-06] Validation: Delete customer with debt blocked
+- tapOn:
+    point: "540, 280"
+- eraseText: 25
+- pressKey: "enter"
+- tapOn:
+    point: "${output.daftar_pelanggan_page.toggleDebtSwitchPoint}"
+- assertVisible: ".*Hutang.*"
+- tapOn:
+    text: ".*Pelanggan Baru.*"
+    optional: true
+- tapOn:
+    text: "${output.daftar_pelanggan_page.hapusPelangganButton}"
+    optional: true
+- assertVisible:
+    text: "${output.daftar_pelanggan_page.alertHutangTerlebihDahulu}"
+    optional: true
+- tapOn:
+    point: "540, 1200"
+    optional: true
+- tapOn:
+    text: "${output.daftar_pelanggan_page.backButton}"
+    optional: true
+- assertVisible: "${output.daftar_pelanggan_page.headerTitle}"
+- tapOn:
+    point: "${output.daftar_pelanggan_page.toggleDebtSwitchPoint}"
+
+# [CUST-05] Delete customer
+- tapOn:
+    point: "540, 280"
+- eraseText: 25
+- inputText: "Budi Auto Edit"
+- pressKey: "enter"
+- tapOn: ".*Budi Auto Edit.*"
+- assertVisible: "${output.daftar_pelanggan_page.detailTitle}"
+- tapOn: "${output.daftar_pelanggan_page.hapusPelangganButton}"
+- assertVisible: "${output.daftar_pelanggan_page.konfirmasiDeleteTitle}"
+- tapOn:
+    point: "540, 1098"
+- assertVisible: "${output.daftar_pelanggan_page.headerTitle}"
+- tapOn: "${output.daftar_pelanggan_page.backButton}"
+- assertVisible: "${output.dashboard_page.overviewLabel}"

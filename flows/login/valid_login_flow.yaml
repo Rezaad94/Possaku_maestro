@@ -1,0 +1,29 @@
+appId: ${APP_ID}
+tags:
+  - smoke
+  - regression-p0
+  - auth
+---
+# [SETUP] Load Credentials
+- runScript:
+    file: ../../pages/login/login_credential.js
+
+# [AUTH-01] Login with 085... valid credential
+- runFlow:
+    label: "Login with 085... valid credential"
+    file: ../../pages/login/login_flow.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber1}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [AUTH-02] Login with +6285... valid credential
+- runFlow:
+    label: "Login with +6285... valid credential"
+    file: ../../pages/login/login_flow.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""

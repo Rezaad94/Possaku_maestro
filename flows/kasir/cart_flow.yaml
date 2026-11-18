@@ -1,0 +1,307 @@
+appId: ${APP_ID}
+tags:
+  - regression-p0
+  - kasir
+  - cart
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/kasir/kasir_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [KASIR-26] Verify total if tax active
+- tapOn: "${output.kasir_page.usahakuTabButton}"
+- runFlow:
+    when:
+      visible: "Pajak \\(Tidak Aktif\\).*"
+    commands:
+      - tapOn: "${output.kasir_page.pajakMenuRegex}"
+      - assertVisible: "Atur Pajak"
+      - tapOn:
+          point: "${output.kasir_page.pajakSwitchPoint}"
+      - tapOn:
+          point: "${output.kasir_page.pajakPercentInputPoint}"
+      - pressKey: "backspace"
+      - pressKey: "backspace"
+      - pressKey: "backspace"
+      - pressKey: "backspace"
+      - inputText: "10"
+      - hideKeyboard
+      - tapOn: "${output.kasir_page.pajakSaveButton}"
+      - runFlow:
+          when:
+            visible: ".*berhasil diperbarui.*"
+          commands:
+            - tapOn:
+                point: "540,1160"
+      - runFlow:
+          when:
+            visible: "Atur Pajak"
+          commands:
+            - tapOn: "Kembali"
+- tapOn: "${output.kasir_page.homeTabButton}"
+- tapOn: "${output.kasir_page.kasirMenuButton}"
+- tapOn:
+    text: "Mengerti"
+    optional: true
+- assertVisible: "Kasir"
+- tapOn: "${output.kasir_page.productRegularText}"
+- tapOn: "${output.kasir_page.variantReguler}"
+- tapOn:
+    point: "${output.kasir_page.variantSheetQtyPlusPoint}"
+- tapOn: "${output.kasir_page.variantSheetAdd}"
+- tapOn: "${output.kasir_page.cartButtonRegex}"
+- runFlow:
+    when:
+      visible: ".*Mengerti.*"
+    commands:
+      - back
+- assertVisible: ".*Sudah termasuk pajak.*"
+
+# [KASIR-27] Verify total if tax inactive
+- tapOn: "Kembali"
+- assertVisible: "Kasir"
+- tapOn:
+    point: "7%,7%"
+- assertVisible: ".*Selamat datang.*"
+- tapOn: "${output.kasir_page.usahakuTabButton}"
+- runFlow:
+    when:
+      visible: "Pajak \\(Aktif.*"
+    commands:
+      - tapOn: "${output.kasir_page.pajakMenuRegex}"
+      - assertVisible: "Atur Pajak"
+      - tapOn:
+          point: "${output.kasir_page.pajakSwitchPoint}"
+      - tapOn: "${output.kasir_page.pajakSaveButton}"
+      - runFlow:
+          when:
+            visible: ".*berhasil diperbarui.*"
+          commands:
+            - tapOn:
+                point: "540,1160"
+      - runFlow:
+          when:
+            visible: "Atur Pajak"
+          commands:
+            - tapOn: "Kembali"
+- tapOn: "${output.kasir_page.homeTabButton}"
+- tapOn: "${output.kasir_page.kasirMenuButton}"
+- tapOn: "${output.kasir_page.cartButtonRegex}"
+- runFlow:
+    when:
+      visible: ".*Mengerti.*"
+    commands:
+      - back
+- assertNotVisible: ".*Sudah termasuk pajak.*"
+- copyTextFrom:
+    text: "Rp[0-9.]+"
+    rightOf: "Total"
+- evalScript: ${output.unitPrice = output.kasir_utils.parseRp(maestro.copiedText)}
+- evalScript: ${output.expectedSingle = output.kasir_utils.formatRpRegex(output.unitPrice)}
+- evalScript: ${output.expectedDouble = output.kasir_utils.formatRpRegex(output.unitPrice * 2)}
+- assertVisible: "${output.expectedSingle}"
+
+# [KASIR-13] Increase qty in cart
+- tapOn:
+    point: "${output.kasir_page.cartItemPlusPoint}"
+- assertVisible: "${output.expectedDouble}"
+
+# [KASIR-14] Decrease qty in cart
+- tapOn:
+    point: "${output.kasir_page.cartItemMinusPoint}"
+- assertVisible: "${output.expectedSingle}"
+
+# [KASIR-15] Edit qty manualy in cart
+- tapOn:
+    point: "${output.kasir_page.cartItemQtyInputPoint}"
+- pressKey: "backspace"
+- inputText: "3"
+- pressKey: "enter"
+- assertVisible: "3"
+
+# [KASIR-17] Add item from cart
+- tapOn: "${output.kasir_page.cartAddItemButton}"
+- assertVisible: "Kasir"
+- tapOn: "FK\\nfor kids\\n1 Varian"
+- tapOn: "${output.kasir_page.variantReguler}"
+- tapOn:
+    point: "${output.kasir_page.variantSheetQtyPlusPoint}"
+- tapOn: "${output.kasir_page.variantSheetAdd}"
+- tapOn: "${output.kasir_page.cartButtonRegex}"
+- runFlow:
+    when:
+      visible: ".*Mengerti.*"
+    commands:
+      - back
+- assertVisible: ".*for kids.*"
+
+# [KASIR-18] Select customer in cart
+- tapOn:
+    point: "${output.kasir_page.cartTopCustomerPoint}"
+- assertVisible: "Pilih Pelanggan"
+- tapOn:
+    point: "920,1650"
+- runFlow:
+    when:
+      visible: "Pilih Pelanggan"
+    commands:
+      - back
+- assertVisible: "Keranjang"
+
+# [KASIR-19] Add new customer
+- tapOn:
+    point: "${output.kasir_page.cartTopCustomerPoint}"
+- assertVisible: "Pilih Pelanggan"
+- tapOn:
+    point: "${output.kasir_page.customerDrawerAddPoint}"
+- assertVisible: "${output.kasir_page.customerFormTitle}"
+- tapOn:
+    point: "540,755"
+- inputText: "Pelanggan Kasir"
+- pressKey: "enter"
+- tapOn:
+    point: "540,980"
+- inputText: "081277766655"
+- pressKey: "enter"
+- tapOn: "${output.kasir_page.customerSaveButton}"
+- assertVisible: "Pilih Pelanggan"
+- tapOn: "${output.kasir_page.customerSearchField}"
+- inputText: "Pelanggan Kasir"
+- pressKey: "enter"
+- assertVisible: ".*Pelanggan Kasir.*"
+- back
+- runFlow:
+    when:
+      visible: "Pilih Pelanggan"
+    commands:
+      - back
+- assertVisible: "Keranjang"
+
+# [KASIR-20] Add nominal discount per item
+- swipe:
+    start: "83%,19%"
+    end: "18%,19%"
+- tapOn:
+    point: "${output.kasir_page.cartItemEditPencilPoint}"
+- assertVisible: "${output.kasir_page.itemEditSheetTitle}"
+- tapOn: "${output.kasir_page.discountNominalButton}"
+- tapOn:
+    point: "${output.kasir_page.itemEditAmountInputPoint}"
+- tapOn:
+    point: "540,1487"
+- inputText: "1000"
+- pressKey: "enter"
+- tapOn: "${output.kasir_page.itemEditApplyButton}"
+- evalScript: ${output.expectedNomItem = output.kasir_utils.formatRpRegex(output.unitPrice - 1000)}
+- assertVisible: ".*${output.expectedNomItem}.*"
+
+# [KASIR-21] Add percentage discount per item
+- swipe:
+    start: "83%,19%"
+    end: "18%,19%"
+- tapOn:
+    point: "${output.kasir_page.cartItemEditPencilPoint}"
+- assertVisible: "${output.kasir_page.itemEditSheetTitle}"
+- tapOn: "Hapus Diskon"
+- swipe:
+    start: "83%,19%"
+    end: "18%,19%"
+- tapOn:
+    point: "${output.kasir_page.cartItemEditPencilPoint}"
+- assertVisible: "${output.kasir_page.itemEditSheetTitle}"
+- tapOn: "${output.kasir_page.discountPersenButton}"
+- tapOn:
+    point: "${output.kasir_page.itemEditAmountInputPoint}"
+- tapOn:
+    point: "540,1487"
+- inputText: "10"
+- pressKey: "enter"
+- tapOn: "${output.kasir_page.itemEditApplyButton}"
+- evalScript: ${output.expectedPctItem = output.kasir_utils.formatRpRegex(output.unitPrice * 0.9)}
+- assertVisible: ".*${output.expectedPctItem}.*"
+
+# [KASIR-22] Add nominal discount per transaction
+- tapOn:
+    point: "${output.kasir_page.cartBottomDiscountPoint}"
+- tapOn: "${output.kasir_page.discountTabDiskon}"
+- tapOn: "${output.kasir_page.discountNominalButton}"
+- tapOn:
+    point: "${output.kasir_page.discountInputPoint}"
+- tapOn:
+    point: "540,857"
+- inputText: "2000"
+- pressKey: "enter"
+- tapOn: "${output.kasir_page.discountApplyButton}"
+- evalScript: ${output.expectedNomDisc = output.kasir_utils.formatRpRegex(2000)}
+- assertVisible: "Diskon ${output.expectedNomDisc}"
+
+# [KASIR-23] Add percentage discount per transaction
+- tapOn:
+    point: "${output.kasir_page.cartBottomDiscountPoint}"
+- tapOn: "Hapus Diskon"
+- tapOn:
+    point: "${output.kasir_page.cartBottomDiscountPoint}"
+- tapOn: "${output.kasir_page.discountTabDiskon}"
+- tapOn: "${output.kasir_page.discountPersenButton}"
+- tapOn:
+    point: "${output.kasir_page.discountInputPoint}"
+- tapOn:
+    point: "540,857"
+- inputText: "5"
+- pressKey: "enter"
+- tapOn: "${output.kasir_page.discountApplyButton}"
+- assertVisible: "Diskon.*"
+- tapOn:
+    point: "${output.kasir_page.cartBottomDiscountPoint}"
+- tapOn: "Hapus Diskon"
+
+# [KASIR-25] Add invalid voucher
+- tapOn:
+    point: "${output.kasir_page.cartBottomDiscountPoint}"
+- tapOn: "${output.kasir_page.discountTabVoucher}"
+- tapOn: "${output.kasir_page.voucherInputField}"
+- tapOn:
+    point: "477,720"
+- inputText: "INVALID999"
+- pressKey: "enter"
+- tapOn: "${output.kasir_page.voucherCheckButton}"
+- tapOn:
+    text: ".*Tutup.*"
+    optional: true
+- runFlow:
+    when:
+      visible: "Tambah Potongan Harga"
+    commands:
+      - back
+
+# [KASIR-24] Add valid voucher
+- tapOn:
+    point: "${output.kasir_page.cartBottomDiscountPoint}"
+- tapOn: "${output.kasir_page.discountTabVoucher}"
+- assertVisible: "Kode Voucher"
+- back
+
+# [KASIR-16] Delete item in cart
+- swipe:
+    start: "83%,19%"
+    end: "18%,19%"
+- tapOn:
+    point: "${output.kasir_page.cartItemDeleteTrashPoint}"
+- tapOn: "Ya"
+- assertVisible: "Keranjang"
+- tapOn:
+    point: "${output.kasir_page.cartTopTrashPoint}"
+- tapOn: "Ya"
+- assertVisible: "Kasir"

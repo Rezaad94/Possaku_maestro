@@ -1,0 +1,75 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - pesanan
+  - order-status-filter
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/daftar_pesanan/daftar_pesanan_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Dismiss onboarding dialog if visible
+- tapOn:
+    text: "Mengerti"
+    optional: true
+
+# [SETUP] Open Daftar Pesanan
+- tapOn:
+    point: "540, 1490"
+- runFlow:
+    when:
+      visible: ".*transaksi aktif.*"
+    commands:
+      - back
+- assertVisible: "${output.daftar_pesanan_page.headerTitle}"
+
+# [ORDER-04] Filter All (Semua)
+- tapOn:
+    point: "${output.daftar_pesanan_page.tabSemuaPoint}"
+- assertVisible: "${output.daftar_pesanan_page.tabSemua}"
+
+# [ORDER-05] Filter Paid (Terbayar)
+- tapOn:
+    point: "${output.daftar_pesanan_page.tabTerbayarPoint}"
+- assertVisible: "${output.daftar_pesanan_page.tabTerbayar}"
+
+# [ORDER-06] Filter Unpaid (Belum Terbayar)
+- tapOn:
+    point: "${output.daftar_pesanan_page.tabBelumTerbayarPoint}"
+- assertVisible: "${output.daftar_pesanan_page.tabBelumTerbayar}"
+
+# Return to Semua tab
+- tapOn:
+    point: "${output.daftar_pesanan_page.tabSemuaPoint}"
+- assertVisible: "${output.daftar_pesanan_page.tabSemua}"
+
+# [ORDER-07] Search Queue (Cari Antrian)
+- tapOn:
+    point: "${output.daftar_pesanan_page.searchQueueIconButtonPoint}"
+- assertVisible: "${output.daftar_pesanan_page.searchQueueInputDesc}"
+- tapOn:
+    point: "${output.daftar_pesanan_page.searchQueueInputFieldPoint}"
+- inputText: "BO"
+- pressKey: "enter"
+- tapOn:
+    text: "${output.daftar_pesanan_page.searchQueueTutupButton}"
+- assertVisible: "${output.daftar_pesanan_page.tabSemua}"
+
+# Return to Dashboard
+- tapOn:
+    point: "${output.daftar_pesanan_page.backButtonPoint}"
+- assertVisible: "${output.dashboard_page.overviewLabel}"

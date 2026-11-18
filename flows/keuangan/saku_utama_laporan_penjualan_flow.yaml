@@ -1,0 +1,94 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - keuangan
+  - saku-utama-penjualan-labarugi
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/keuangan/keuangan_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Open Keuangan and navigate to Laporan Penjualan
+- tapOn: "${output.dashboard_page.keuanganMenuButton}"
+- assertVisible: "${output.keuangan_page.headerTitle}"
+- tapOn: ".*Saku Utama.*"
+- assertVisible: "${output.keuangan_page.menuLaporanPenjualan}"
+- tapOn: "${output.keuangan_page.menuLaporanPenjualan}"
+- assertVisible: "${output.keuangan_page.laporanPenjualanTitle}"
+
+# [KEU-17] View summary in Laporan Penjualan
+- assertVisible: "${output.keuangan_page.labaKotorLabel}"
+- assertVisible: "${output.keuangan_page.ringkasanPenjualanLabel}"
+- assertVisible: "${output.keuangan_page.jumlahTransaksiLabel}"
+- assertVisible: "${output.keuangan_page.penjualanLunasLabel}"
+
+# [KEU-18] View by category in Laporan Penjualan
+- tapOn: "Pendapatan"
+- assertVisible: "Penjualan Kasir"
+- tapOn: "HPP"
+- assertVisible: "Total Harga Modal"
+- tapOn: "Semua"
+- assertVisible: "${output.keuangan_page.labaKotorLabel}"
+
+# [KEU-14] List transaction in Laporan Penjualan
+- swipe:
+    start: "50%,70%"
+    end: "50%,40%"
+- assertVisible: "Total Pendapatan"
+- assertVisible: "Harga Pokok Penjualan \\(HPP\\)"
+
+# [KEU-15] Search transaction in Laporan Penjualan
+- swipe:
+    start: "50%,30%"
+    end: "50%,70%"
+- assertVisible: "${output.keuangan_page.laporanPenjualanTitle}"
+
+# [KEU-16] Download in Laporan Penjualan
+- tapOn:
+    point: "${output.keuangan_page.downloadReportPoint}"
+- assertVisible: ".*pdf.*"
+- back
+- assertVisible: "${output.keuangan_page.laporanPenjualanTitle}"
+
+# [KEU-20] View summary in Laporan Laba Rugi
+- tapOn: "${output.keuangan_page.tabLabaRugi}"
+- assertVisible: "${output.keuangan_page.labaRugiTitle}"
+- assertVisible: "${output.keuangan_page.labaBersihLabel}"
+- assertVisible: "${output.keuangan_page.pendapatanLabel}"
+- assertVisible: "${output.keuangan_page.hppLabel}"
+
+# [KEU-21] View by category in Laporan Laba Rugi
+- swipe:
+    start: "50%,70%"
+    end: "50%,40%"
+- assertVisible: "Total Pendapatan"
+- assertVisible: "Harga Pokok Penjualan \\(HPP\\)"
+
+# [KEU-19] Download in Laporan Laba Rugi
+- tapOn:
+    point: "${output.keuangan_page.downloadReportPoint}"
+- assertVisible: ".*pdf.*"
+- back
+- assertVisible: "${output.keuangan_page.labaRugiTitle}"
+
+# [TEARDOWN] Return to Dashboard from Keuangan
+- tapOn: "${output.keuangan_page.backButton}"
+- assertVisible: "${output.keuangan_page.menuLaporanPenjualan}"
+- tapOn: "${output.keuangan_page.backButton}"
+- assertVisible: "${output.keuangan_page.headerTitle}"
+- tapOn: "${output.keuangan_page.backButton}"
+- assertVisible: "${output.dashboard_page.overviewLabel}"

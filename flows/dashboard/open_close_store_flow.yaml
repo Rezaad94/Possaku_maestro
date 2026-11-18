@@ -1,0 +1,112 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - dashboard
+  - store-status
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/usahaku/usahaku_page.js
+- runScript:
+    file: ../../pages/kasir/kasir_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Dismiss onboarding/update dialogs if visible
+- tapOn:
+    text: "Mengerti"
+    optional: true
+- runScript:
+    file: ../../pages/delay.js
+- runScript:
+    file: ../../pages/delay.js
+
+# [SETUP] Pre-requisite conditional check: If the store is currently Closed ("Tutup"), toggle it to Open ("Buka") first
+- runFlow:
+    when:
+      visible: "${output.dashboard_page.storeStatusLabelTutup}"
+    commands:
+      - swipe:
+          start: "20%,45%"
+          end: "80%,45%"
+      - runScript:
+          file: ../../pages/delay.js
+      - tapOn: "${output.usahaku_page.confirmYesButton}"
+      - runScript:
+          file: ../../pages/delay.js
+
+# [DASH-08] Verify that when Open (Buka), Kasir can be used
+- tapOn: "${output.kasir_page.kasirMenuButton}"
+- runScript:
+    file: ../../pages/delay.js
+- assertVisible: "${output.kasir_page.categorySemua}"
+- assertVisible: "${output.kasir_page.scanBarcodeButton}"
+- back
+- runScript:
+    file: ../../pages/delay.js
+
+# [DASH-09] Toggle Store Status to Close via Dashboard Slider
+- swipe:
+    start: "20%,45%"
+    end: "80%,45%"
+- runScript:
+    file: ../../pages/delay.js
+- tapOn: "${output.usahaku_page.confirmYesButton}"
+- runScript:
+    file: ../../pages/delay.js
+
+# [DASH-10] Verify Store Status on Home Dashboard is Tutup
+- tapOn: "Home\nTab 1.*"
+- runScript:
+    file: ../../pages/delay.js
+- assertVisible: "${output.dashboard_page.storeStatusLabelTutup}"
+- assertVisible: "${output.dashboard_page.jamOperasionalBukaInfo}"
+
+# [DASH-11] Verify that when Closed (Tutup), tapping Kasir shows warning dialog
+- tapOn: "${output.kasir_page.kasirMenuButton}"
+- runScript:
+    file: ../../pages/delay.js
+- assertVisible: "Konfirmasi"
+- assertVisible: "${output.dashboard_page.storeStatusLabelBuka}"
+- assertVisible: "${output.usahaku_page.confirmNoButton}"
+- tapOn: "${output.usahaku_page.confirmNoButton}"
+- runScript:
+    file: ../../pages/delay.js
+
+# [DASH-12] Toggle Store Status back to Open via Dashboard Slider
+- swipe:
+    start: "20%,45%"
+    end: "80%,45%"
+- runScript:
+    file: ../../pages/delay.js
+- tapOn: "${output.usahaku_page.confirmYesButton}"
+- runScript:
+    file: ../../pages/delay.js
+
+# [DASH-13] Verify Store Status on Home Dashboard is Buka again
+- tapOn: "Home\nTab 1.*"
+- runScript:
+    file: ../../pages/delay.js
+- assertVisible: "${output.dashboard_page.storeStatusLabelBuka}"
+- assertVisible: "${output.dashboard_page.jamOperasionalTutupInfo}"
+
+# [DASH-14] Verify that when Open (Buka) again, Kasir can be used
+- tapOn: "${output.kasir_page.kasirMenuButton}"
+- runScript:
+    file: ../../pages/delay.js
+- assertVisible: "${output.kasir_page.categorySemua}"
+- back
+- runScript:
+    file: ../../pages/delay.js

@@ -1,0 +1,107 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - keuangan
+  - saku-utama-filter
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/keuangan/keuangan_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Open Keuangan and navigate to Rekap Transaksi
+- tapOn: "${output.dashboard_page.keuanganMenuButton}"
+- assertVisible: "${output.keuangan_page.headerTitle}"
+- tapOn: ".*Saku Utama.*"
+- assertVisible: "${output.keuangan_page.menuRekapTransaksi}"
+- tapOn: "${output.keuangan_page.menuRekapTransaksi}"
+- assertVisible: "${output.keuangan_page.rekapTitle}"
+
+# [KEU-03] Filter Tahun ini (pro)
+- tapOn:
+    point: "${output.keuangan_page.periodFilterButtonPoint}"
+- assertVisible: "${output.keuangan_page.periodFilterTitle}"
+- swipe:
+    start: "85%,25%"
+    end: "15%,25%"
+- tapOn: "${output.keuangan_page.filterTahunIni}"
+- tapOn: "${output.keuangan_page.applyFilterButton}"
+- assertVisible: "${output.keuangan_page.rekapTitle}"
+- assertVisible: ".*2026.*"
+
+# [KEU-04] Filter Tahun lalu (pro)
+- tapOn:
+    point: "${output.keuangan_page.periodFilterButtonPoint}"
+- assertVisible: "${output.keuangan_page.periodFilterTitle}"
+- swipe:
+    start: "85%,25%"
+    end: "15%,25%"
+- swipe:
+    start: "85%,25%"
+    end: "15%,25%"
+- tapOn: "${output.keuangan_page.filterTahunLalu}"
+- tapOn: "${output.keuangan_page.applyFilterButton}"
+- assertVisible: "${output.keuangan_page.rekapTitle}"
+- assertVisible: ".*2025.*"
+
+# [KEU-05] Filter bulan lalu (pro)
+- tapOn:
+    point: "${output.keuangan_page.periodFilterButtonPoint}"
+- assertVisible: "${output.keuangan_page.periodFilterTitle}"
+- swipe:
+    start: "85%,25%"
+    end: "15%,25%"
+- tapOn: "${output.keuangan_page.filterBulanLalu}"
+- tapOn: "${output.keuangan_page.applyFilterButton}"
+- assertVisible: "${output.keuangan_page.rekapTitle}"
+
+# [KEU-06] Filter bulan ini
+- tapOn:
+    point: "${output.keuangan_page.periodFilterButtonPoint}"
+- assertVisible: "${output.keuangan_page.periodFilterTitle}"
+- swipe:
+    start: "85%,25%"
+    end: "15%,25%"
+- tapOn: "${output.keuangan_page.filterBulanIni}"
+- tapOn: "${output.keuangan_page.applyFilterButton}"
+- assertVisible: "${output.keuangan_page.rekapTitle}"
+- assertVisible: ".*Nov 2026.*"
+
+# [KEU-07] Filter custom
+- tapOn:
+    point: "${output.keuangan_page.periodFilterButtonPoint}"
+- assertVisible: "${output.keuangan_page.periodFilterTitle}"
+- swipe:
+    start: "15%,25%"
+    end: "85%,25%"
+- swipe:
+    start: "15%,25%"
+    end: "85%,25%"
+- tapOn: "${output.keuangan_page.filterKustom}"
+- tapOn:
+    point: "328,1117"
+- tapOn:
+    point: "611,1227"
+- tapOn: "${output.keuangan_page.applyFilterButton}"
+- assertVisible: "${output.keuangan_page.rekapTitle}"
+
+# [TEARDOWN] Return to Dashboard from Keuangan
+- tapOn: "${output.keuangan_page.backButton}"
+- assertVisible: "${output.keuangan_page.menuRekapTransaksi}"
+- tapOn: "${output.keuangan_page.backButton}"
+- assertVisible: "${output.keuangan_page.headerTitle}"
+- tapOn: "${output.keuangan_page.backButton}"
+- assertVisible: "${output.dashboard_page.overviewLabel}"

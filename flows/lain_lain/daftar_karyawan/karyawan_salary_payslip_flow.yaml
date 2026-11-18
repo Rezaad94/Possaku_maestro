@@ -1,0 +1,218 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - lain-lain
+  - daftar-karyawan
+  - salary-payslip
+---
+- runScript:
+    file: ../../../pages/login/login_credential.js
+- runScript:
+    file: ../../../pages/login/login_page.js
+- runScript:
+    file: ../../../pages/lain_lain/daftar_karyawan_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# Dismiss any lingering modals
+- tapOn:
+    text: "Mengerti"
+    optional: true
+- tapOn:
+    text: "Tutup"
+    optional: true
+
+# Navigate to Lain-Lain -> Daftar Karyawan
+- tapOn:
+    text: "Lain-Lain"
+    optional: true
+- tapOn:
+    point: "876, 1490"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+- tapOn:
+    text: "Daftar\nKaryawan"
+    optional: true
+- tapOn:
+    point: "858, 1206"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# Verify on Daftar Karyawan screen
+- assertVisible: "${output.daftar_karyawan_page.daftarKaryawanTitle}"
+
+# Select configured employee "uaua"
+- tapOn: ".*uaua.*"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: "${output.daftar_karyawan_page.detailKaryawanTitle}"
+
+# [KARY-11] Automatic Payroll Recording Schedule Implementation
+# Verify employee salary is configured
+- assertVisible: "Nominal Gaji"
+- assertVisible: ".*Rp1.000.000.*"
+
+# [KARY-07] Employee Deactivation & [KARY-06] Employee Activation
+# Open options menu
+- tapOn:
+    point: "${output.daftar_karyawan_page.topRightMenuPoint}"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: "${output.daftar_karyawan_page.lanjutanModalTitle}"
+
+# Toggle Deactivate
+- tapOn:
+    text: "${output.daftar_karyawan_page.menuNonAktifkanText}"
+- runScript:
+    file: ../../../pages/delay.js
+- tapOn: "Ya"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: ".*Non Aktif.*"
+
+# Re-activate employee
+- tapOn:
+    point: "${output.daftar_karyawan_page.topRightMenuPoint}"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: "${output.daftar_karyawan_page.lanjutanModalTitle}"
+- tapOn:
+    text: "${output.daftar_karyawan_page.menuAktifkanText}"
+- runScript:
+    file: ../../../pages/delay.js
+- tapOn: "Ya"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: ".*Aktif.*"
+
+# [KARY-09] Upload Payslip from Camera
+# [KARY-10] Upload Payslip from Gallery
+- tapOn:
+    point: "${output.daftar_karyawan_page.topRightMenuPoint}"
+- runScript:
+    file: ../../../pages/delay.js
+- tapOn:
+    text: "${output.daftar_karyawan_page.menuUploadSlipText}"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: "${output.daftar_karyawan_page.uploadBuktiTitle}"
+
+# Open image picker modal
+- tapOn:
+    point: "${output.daftar_karyawan_page.uploadFotoBtnPoint}"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: "${output.daftar_karyawan_page.ambilGambarTitle}"
+- assertVisible: "Kamera"
+- assertVisible: "Gallery"
+
+# Dismiss image picker modal & navigate back to Beranda (5 steps back)
+- back
+- runScript:
+    file: ../../../pages/delay.js
+- back
+- runScript:
+    file: ../../../pages/delay.js
+- back
+- runScript:
+    file: ../../../pages/delay.js
+- back
+- runScript:
+    file: ../../../pages/delay.js
+- back
+- runScript:
+    file: ../../../pages/delay.js
+
+# Ensure on Home / Beranda
+- tapOn:
+    point: "135, 1705"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# [KARY-13] Buy Add On Employee
+# Go to Profil (Tab 4)
+- tapOn:
+    point: "945, 1705"
+- runScript:
+    file: ../../../pages/delay.js
+
+# Dismiss email prompt on Profil if it appears
+- tapOn:
+    text: "Nanti"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+- assertVisible: "Profil"
+- assertVisible: "Paket Add-on"
+
+# Tap Paket Add-on
+- tapOn:
+    text: "Paket Add-on"
+    optional: true
+- tapOn:
+    point: "540, 1430"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: ".*Tidak ada paket addon aktif.*|.*paket addon.*|.*Paket.*"
+- tapOn:
+    point: "540, 1200"
+    optional: true
+- tapOn:
+    text: "Mengerti"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# [KARY-14] Offline Mode
+# Return to Home -> Lain-Lain -> Daftar Karyawan
+- tapOn:
+    point: "135, 1705"
+- runScript:
+    file: ../../../pages/delay.js
+
+- tapOn:
+    text: "Lain-Lain"
+    optional: true
+- tapOn:
+    point: "876, 1490"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+- tapOn:
+    text: "Daftar\nKaryawan"
+    optional: true
+- tapOn:
+    point: "858, 1206"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# [KARY-14] Offline Mode
+# Enable Airplane Mode (Offline)
+- toggleAirplaneMode
+- runScript:
+    file: ../../../pages/delay.js
+
+# Verify offline cached state in Daftar Karyawan
+- assertVisible: "${output.daftar_karyawan_page.daftarKaryawanTitle}"
+- assertVisible: ".*uaua.*"
+
+# Disable Airplane Mode (Restore Online Internet)
+- toggleAirplaneMode
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: "${output.daftar_karyawan_page.daftarKaryawanTitle}"

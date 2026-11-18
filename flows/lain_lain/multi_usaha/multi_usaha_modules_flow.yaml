@@ -1,0 +1,190 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - lain-lain
+  - multi-usaha
+  - branch-modules
+---
+- runScript:
+    file: ../../../pages/login/login_credential.js
+- runScript:
+    file: ../../../pages/login/login_page.js
+- runScript:
+    file: ../../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../../pages/lain_lain/multi_usaha_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# Dismiss any lingering popups
+- tapOn:
+    text: "Nanti"
+    optional: true
+- tapOn:
+    text: "Mengerti"
+    optional: true
+- tapOn:
+    text: "Tutup"
+    optional: true
+
+# Ensure at Home/Beranda
+- tapOn:
+    point: "135, 1705"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: "${output.dashboard_page.overviewLabel}"
+
+# [MULTI-05] Atur Produk for Branch Store
+- tapOn:
+    text: "${output.dashboard_page.aturProdukMenuButton}"
+    optional: true
+- tapOn:
+    point: "222, 1206"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: ".*Produk.*|.*Kategori.*"
+
+# Dismiss coachmark if present
+- tapOn:
+    text: "Lewati"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# Return to Home
+- tapOn:
+    point: "73, 136"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: "${output.dashboard_page.overviewLabel}"
+
+# [MULTI-06] Keuangan for Branch Store
+- tapOn:
+    point: "135, 1490"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: ".*Saku Utama.*|.*Keuangan.*|.*Laporan.*"
+- tapOn:
+    point: "73, 136"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: "${output.dashboard_page.overviewLabel}"
+
+# Navigate to Lain-Lain
+- tapOn:
+    text: "Lain-Lain"
+    optional: true
+- tapOn:
+    point: "876, 1490"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# [MULTI-07] Toko Online for Branch Store
+- tapOn:
+    text: "Toko\nOnlineku"
+    optional: true
+- tapOn:
+    point: "540, 1206"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# Dismiss onboarding guide if present
+- tapOn:
+    text: "Lewati"
+    optional: true
+- tapOn:
+    text: "Lanjutkan"
+    optional: true
+- tapOn:
+    text: "Selesai"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+- assertVisible: ".*Toko Online.*|.*Pengaturan Toko.*"
+- tapOn:
+    point: "73, 136"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: "${output.dashboard_page.overviewLabel}"
+
+# Open Lain-Lain for Daftar Karyawan
+- tapOn:
+    text: "Lain-Lain"
+    optional: true
+- tapOn:
+    point: "876, 1490"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# [MULTI-08] Daftar Karyawan for Branch Store
+- tapOn:
+    point: "858, 1206"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: ".*Daftar Karyawan.*"
+- tapOn:
+    point: "73, 136"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: "${output.dashboard_page.overviewLabel}"
+
+# [MULTI-09] Daftar Pelanggan for Branch Store (from Home Operasional Grid)
+- tapOn:
+    point: "876, 1164"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: ".*Daftar Pelanggan.*"
+- tapOn:
+    point: "73, 136"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: "${output.dashboard_page.overviewLabel}"
+
+# Return to Home
+- tapOn:
+    point: "135, 1705"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# [MULTI-10] Pengaturan Usaha for Branch Store
+# Switch to Usahaku (Tab 3)
+- tapOn:
+    point: "675, 1705"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: ".*Usahaku.*|.*Informasi Usaha.*"
+
+# Verify / Inspect Informasi Usaha
+- assertVisible: ".*Informasi Usaha.*|.*Nama Usaha.*"
+- tapOn:
+    point: "890, 538"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+- tapOn:
+    point: "73, 136"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# Return to Home/Beranda
+- tapOn:
+    point: "135, 1705"
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: "${output.dashboard_page.overviewLabel}"

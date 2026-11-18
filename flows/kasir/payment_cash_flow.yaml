@@ -1,0 +1,304 @@
+appId: ${APP_ID}
+tags:
+  - regression-p0
+  - kasir
+  - payment
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/kasir/kasir_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Ensure Pajak is disabled before standard cash tests
+- tapOn: "${output.kasir_page.usahakuTabButton}"
+- runFlow:
+    when:
+      visible: "Pajak \\(Aktif.*"
+    commands:
+      - tapOn: "${output.kasir_page.pajakMenuRegex}"
+      - assertVisible: "Atur Pajak"
+      - tapOn:
+          point: "${output.kasir_page.pajakSwitchPoint}"
+      - tapOn: "${output.kasir_page.pajakSaveButton}"
+      - runFlow:
+          when:
+            visible: ".*berhasil diperbarui.*"
+          commands:
+            - tapOn:
+                point: "540,1160"
+      - runFlow:
+          when:
+            visible: "Atur Pajak"
+          commands:
+            - tapOn: "Kembali"
+- tapOn: "${output.kasir_page.homeTabButton}"
+
+# [SETUP] Navigate to Kasir menu from Dashboard
+- tapOn: "${output.kasir_page.kasirMenuButton}"
+- tapOn:
+    text: "Mengerti"
+    optional: true
+- assertVisible: "Kasir"
+
+# Add item to cart to prepare
+- tapOn: "${output.kasir_page.productRegularText}"
+- tapOn: "${output.kasir_page.variantReguler}"
+- tapOn:
+    point: "${output.kasir_page.variantSheetQtyPlusPoint}"
+- tapOn: "${output.kasir_page.variantSheetAdd}"
+
+# Open Cart, attach customer, and proceed to Payment
+- tapOn: "${output.kasir_page.cartButtonRegex}"
+- runFlow:
+    when:
+      visible: ".*Mengerti.*"
+    commands:
+      - back
+- tapOn:
+    point: "${output.kasir_page.cartTopCustomerPoint}"
+- assertVisible: "Pilih Pelanggan"
+- tapOn:
+    text: ".*Pelanggan Baru.*"
+    index: 0
+    point: "90%,50%"
+- copyTextFrom:
+    text: "Rp[0-9.]+"
+    rightOf: "Total"
+- evalScript: ${output.cartTotal1 = output.kasir_utils.parseRp(maestro.copiedText)}
+- evalScript: ${output.expectedTotal1 = output.kasir_utils.formatRpRegex(output.cartTotal1)}
+- tapOn: "${output.kasir_page.cartPayButton}"
+
+# [KASIR-28] Finish transaction with Tunai method
+- tapOn: "${output.kasir_page.payMethodTunai}"
+- assertVisible: "Pembayaran"
+
+# [KASIR-34] Select back date in cashier
+- evalScript: ${output.backDate = output.kasir_utils.getBackDateInfo()}
+- tapOn: "${output.kasir_page.dateSelector}"
+- tapOn: "${output.backDate.pickerPattern}"
+- tapOn: "${output.kasir_page.dateApplyButton}"
+- assertVisible: "${output.backDate.shortDateRegex}"
+
+# Fill Catatan Pesanan & preview products
+- tapOn: "Pratinjau Produk"
+- back
+- scrollUntilVisible:
+    element:
+      text: "Catatan Pesanan"
+    direction: DOWN
+    centerElement: true
+- tapOn:
+    below: "Catatan Pesanan"
+- inputText: "Catatan Tunai"
+- hideKeyboard
+
+# [KASIR-33] Pay with exact money
+- scrollUntilVisible:
+    element:
+      text: "Uang Pas"
+    direction: DOWN
+    visibilityPercentage: 50
+- tapOn: "${output.kasir_page.payExactCashButton}"
+- tapOn: "${output.kasir_page.payFinishButton}"
+- tapOn:
+    text: "Ya"
+    optional: true
+- assertVisible: "Selamat.*"
+
+# [KASIR-35] User see correct data in struck
+- tapOn: "Lihat Nota"
+- assertVisible: "${output.kasir_page.receiptTitle}"
+- assertVisible: "${output.backDate.receiptDateRegex}"
+- assertVisible: "Pelanggan"
+- assertVisible: "Pelanggan Baru"
+- assertVisible: "Detail Transaksi"
+- assertVisible: "Metode Pembayaran"
+- assertVisible: "Tunai"
+- assertVisible: ".*beras oye.*"
+- swipe:
+    start: "50%,55%"
+    end: "50%,20%"
+- assertVisible: "Subtotal"
+- assertVisible: "Total"
+- assertVisible: "${output.expectedTotal1}"
+- assertVisible: "Uang Dibayarkan"
+- assertVisible: "Kembalian"
+- assertVisible: "Rp0"
+- tapOn: "${output.kasir_page.receiptCloseButton}"
+- assertVisible: "Kasir"
+
+# [KASIR-32] Pay with excess money
+- tapOn: "${output.kasir_page.productRegularText}"
+- tapOn: "${output.kasir_page.variantReguler}"
+- tapOn:
+    point: "${output.kasir_page.variantSheetQtyPlusPoint}"
+- tapOn: "${output.kasir_page.variantSheetAdd}"
+- tapOn: "${output.kasir_page.cartButtonRegex}"
+- runFlow:
+    when:
+      visible: ".*Mengerti.*"
+    commands:
+      - back
+- copyTextFrom:
+    text: "Rp[0-9.]+"
+    rightOf: "Total"
+- evalScript: ${output.cartTotal = output.kasir_utils.parseRp(maestro.copiedText)}
+- evalScript: ${output.expectedTotal = output.kasir_utils.formatRpRegex(output.cartTotal)}
+- evalScript: ${output.expectedChange = output.kasir_utils.formatRpRegex(50000 - output.cartTotal)}
+- tapOn: "${output.kasir_page.cartPayButton}"
+- tapOn: "${output.kasir_page.payMethodTunai}"
+- scroll
+- tapOn: "${output.kasir_page.payExcessCashButton}"
+- tapOn: "${output.kasir_page.payFinishButton}"
+- tapOn:
+    text: "Ya"
+    optional: true
+- assertVisible: "Selamat.*"
+- tapOn: "Lihat Nota"
+- assertVisible: "${output.kasir_page.receiptTitle}"
+- assertVisible: "Metode Pembayaran"
+- assertVisible: "Tunai"
+- swipe:
+    start: "50%,55%"
+    end: "50%,20%"
+- assertVisible: "Total"
+- assertVisible: "${output.expectedTotal}"
+- assertVisible: "Uang Dibayarkan"
+- assertVisible: "Rp50\\.000"
+- assertVisible: "Kembalian"
+- assertVisible: ".*${output.expectedChange}.*"
+- tapOn: "${output.kasir_page.receiptCloseButton}"
+- assertVisible: "Kasir"
+
+# [KASIR-35b] Verify Nota with Pelanggan, Diskon, PPN, Payment Method, and Total
+- back
+- assertVisible: ".*Selamat datang.*"
+- tapOn: "${output.kasir_page.usahakuTabButton}"
+- runFlow:
+    when:
+      visible: "Pajak \\(Tidak Aktif\\).*"
+    commands:
+      - tapOn: "${output.kasir_page.pajakMenuRegex}"
+      - assertVisible: "Atur Pajak"
+      - tapOn:
+          point: "${output.kasir_page.pajakSwitchPoint}"
+      - tapOn:
+          point: "${output.kasir_page.pajakPercentInputPoint}"
+      - eraseText: 5
+      - inputText: "10"
+      - pressKey: "enter"
+      - tapOn: "${output.kasir_page.pajakSaveButton}"
+      - runFlow:
+          when:
+            visible: ".*berhasil diperbarui.*"
+          commands:
+            - tapOn:
+                point: "540,1160"
+      - runFlow:
+          when:
+            visible: "Atur Pajak"
+          commands:
+            - tapOn: "Kembali"
+- tapOn: "${output.kasir_page.homeTabButton}"
+- tapOn: "${output.kasir_page.kasirMenuButton}"
+- tapOn:
+    text: "Mengerti"
+    optional: true
+- assertVisible: "Kasir"
+- tapOn: "${output.kasir_page.productRegularText}"
+- tapOn: "${output.kasir_page.variantReguler}"
+- tapOn:
+    point: "${output.kasir_page.variantSheetQtyPlusPoint}"
+- tapOn: "${output.kasir_page.variantSheetAdd}"
+- tapOn: "${output.kasir_page.cartButtonRegex}"
+- runFlow:
+    when:
+      visible: ".*Mengerti.*"
+    commands:
+      - back
+- tapOn:
+    point: "${output.kasir_page.cartTopCustomerPoint}"
+- assertVisible: "Pilih Pelanggan"
+- tapOn:
+    text: ".*Pelanggan Baru.*"
+    index: 0
+    point: "90%,50%"
+- tapOn:
+    point: "${output.kasir_page.cartBottomDiscountPoint}"
+- tapOn: "${output.kasir_page.discountTabDiskon}"
+- tapOn: "${output.kasir_page.discountNominalButton}"
+- tapOn:
+    point: "${output.kasir_page.discountInputPoint}"
+- tapOn:
+    point: "540,857"
+- inputText: "2000"
+- pressKey: "enter"
+- tapOn: "${output.kasir_page.discountApplyButton}"
+- evalScript: ${output.expectedSubtotal = output.kasir_utils.formatRpRegex(output.cartTotal1)}
+- evalScript: ${output.expectedDiscount = output.kasir_utils.formatRpRegex(2000)}
+- evalScript: ${output.expectedPpn = output.kasir_utils.formatRpRegex((output.cartTotal1 - 2000) * 0.10)}
+- evalScript: ${output.expectedTotalWithDiscPpn = output.kasir_utils.formatRpRegex((output.cartTotal1 - 2000) * 1.10)}
+- tapOn: "${output.kasir_page.cartPayButton}"
+- tapOn: "${output.kasir_page.payMethodTunai}"
+- tapOn: "${output.kasir_page.payFinishButton}"
+- tapOn:
+    text: "Ya"
+    optional: true
+- assertVisible: "Selamat.*"
+- tapOn: "Lihat Nota"
+- assertVisible: "${output.kasir_page.receiptTitle}"
+- assertVisible: "Pelanggan"
+- assertVisible: "Pelanggan Baru"
+- assertVisible: "Metode Pembayaran"
+- assertVisible: "Tunai"
+- swipe:
+    start: "50%,55%"
+    end: "50%,20%"
+- assertVisible: "Subtotal"
+- assertVisible: "${output.expectedSubtotal}"
+- assertVisible: "Total Diskon"
+- assertVisible: ".*${output.expectedDiscount}.*"
+- assertVisible: "PPN \\(10\\.0%\\)"
+- assertVisible: "${output.expectedPpn}"
+- assertVisible: "Total"
+- assertVisible: "${output.expectedTotalWithDiscPpn}"
+- assertVisible: "Uang Dibayarkan"
+- tapOn: "${output.kasir_page.receiptCloseButton}"
+- assertVisible: "Kasir"
+- back
+- assertVisible: ".*Selamat datang.*"
+- tapOn: "${output.kasir_page.usahakuTabButton}"
+- runFlow:
+    when:
+      visible: "Pajak \\(Aktif.*"
+    commands:
+      - tapOn: "${output.kasir_page.pajakMenuRegex}"
+      - assertVisible: "Atur Pajak"
+      - tapOn:
+          point: "${output.kasir_page.pajakSwitchPoint}"
+      - tapOn: "${output.kasir_page.pajakSaveButton}"
+      - runFlow:
+          when:
+            visible: ".*berhasil diperbarui.*"
+          commands:
+            - tapOn:
+                point: "540,1160"
+      - runFlow:
+          when:
+            visible: "Atur Pajak"
+          commands:
+            - tapOn: "Kembali"
+- tapOn: "${output.kasir_page.homeTabButton}"
+- assertVisible: ".*Selamat datang.*"
+

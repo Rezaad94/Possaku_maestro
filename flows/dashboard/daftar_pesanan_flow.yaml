@@ -1,0 +1,41 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - dashboard
+  - pesanan
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Dismiss onboarding dialog if visible
+- tapOn:
+    text: "Mengerti"
+    optional: true
+
+# [DASH-05] Open Daftar Pesanan from Dashboard and verify order tabs
+- tapOn: "${output.dashboard_page.daftarPesananMenuButton}"
+- assertVisible: "Daftar Pesanan"
+- assertVisible: "Semua"
+- assertVisible: "Terbayar"
+- assertVisible: "Belum Terbayar"
+
+# [DASH-06] Assert queue reset button is visible
+- assertVisible: "Reset Nomor Antrian"
+
+# [DASH-07] Return to Dashboard from Daftar Pesanan
+- back
+- assertVisible: "${output.dashboard_page.overviewLabel}"
+

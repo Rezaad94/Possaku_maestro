@@ -1,0 +1,130 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - pesanan
+  - order-action
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/daftar_pesanan/daftar_pesanan_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Dismiss onboarding dialog if visible
+- tapOn:
+    text: "Mengerti"
+    optional: true
+
+# [SETUP] Open Daftar Pesanan
+- tapOn:
+    point: "540, 1490"
+- runFlow:
+    when:
+      visible: ".*transaksi aktif.*"
+    commands:
+      - back
+- assertVisible: "${output.daftar_pesanan_page.headerTitle}"
+
+# Ensure Tahun ini filter is applied so active orders are visible
+- tapOn:
+    point: "${output.daftar_pesanan_page.filterPeriodeButtonPoint}"
+- swipe:
+    start: "85%,25%"
+    end: "15%,25%"
+- tapOn:
+    point: "${output.daftar_pesanan_page.filterChipTahunIniPoint}"
+- tapOn:
+    point: "${output.daftar_pesanan_page.terapkanFilterPoint}"
+- assertVisible: "${output.daftar_pesanan_page.headerTitle}"
+
+# [ORDER-13] Edit Order (Ubah Pesanan) & [ORDER-14] Edit Note (Catatan Pesanan)
+- tapOn:
+    point: "${output.daftar_pesanan_page.queueOrderCardMenuPoint}"
+- assertVisible: "${output.daftar_pesanan_page.pengaturanLanjutanTitle}"
+- tapOn:
+    point: "${output.daftar_pesanan_page.ubahPesananPoint}"
+- assertVisible: "${output.daftar_pesanan_page.ubahPesananTitle}"
+
+# Open Edit Note modal
+- tapOn:
+    point: "${output.daftar_pesanan_page.catatanPesananPoint}"
+- assertVisible: "${output.daftar_pesanan_page.catatanPesananTitle}"
+- tapOn:
+    point: "${output.daftar_pesanan_page.catatanInputFieldPoint}"
+- inputText: "Meja 5 Urgent"
+- tapOn:
+    point: "540, 200"
+    optional: true
+- tapOn:
+    point: "${output.daftar_pesanan_page.simpanCatatanPoint}"
+
+# Save Ubah Pesanan
+- assertVisible: "${output.daftar_pesanan_page.ubahPesananTitle}"
+- tapOn:
+    point: "${output.daftar_pesanan_page.simpanUbahPesananPoint}"
+- assertVisible: "${output.daftar_pesanan_page.headerTitle}"
+
+# [ORDER-15] Print Pesanan
+- tapOn:
+    point: "${output.daftar_pesanan_page.queueOrderCardMenuPoint}"
+- assertVisible: "${output.daftar_pesanan_page.pengaturanLanjutanTitle}"
+- tapOn:
+    point: "${output.daftar_pesanan_page.printPesananPoint}"
+- tapOn:
+    text: "Tutup"
+    optional: true
+- tapOn:
+    point: "540, 1095"
+    optional: true
+- assertVisible: "${output.daftar_pesanan_page.headerTitle}"
+
+# [ORDER-16] Print Bill
+- tapOn:
+    point: "${output.daftar_pesanan_page.queueOrderCardMenuPoint}"
+- assertVisible: "${output.daftar_pesanan_page.pengaturanLanjutanTitle}"
+- tapOn:
+    point: "${output.daftar_pesanan_page.printBillPoint}"
+- tapOn:
+    text: "Tutup"
+    optional: true
+- tapOn:
+    point: "540, 1095"
+    optional: true
+- assertVisible: "${output.daftar_pesanan_page.headerTitle}"
+
+# [ORDER-17] Tagih (Metode Pembayaran modal)
+- tapOn:
+    point: "${output.daftar_pesanan_page.tagihButtonPoint}"
+- assertVisible: "${output.daftar_pesanan_page.metodePembayaranTitle}"
+- tapOn:
+    point: "${output.daftar_pesanan_page.metodePembayaranScrimPoint}"
+- assertVisible: "${output.daftar_pesanan_page.headerTitle}"
+
+# [ORDER-18] Finish Queue (Selesai)
+- tapOn:
+    point: "${output.daftar_pesanan_page.selesaiButtonPoint}"
+    optional: true
+- runFlow:
+    when:
+      visible: "${output.daftar_pesanan_page.selesaiKonfirmasiDialog}"
+    commands:
+      - tapOn:
+          text: "${output.daftar_pesanan_page.selesaiTidakButton}"
+- assertVisible: "${output.daftar_pesanan_page.headerTitle}"
+
+# Return to Dashboard
+- tapOn:
+    point: "${output.daftar_pesanan_page.backButtonPoint}"
+- assertVisible: "${output.dashboard_page.overviewLabel}"

@@ -1,0 +1,139 @@
+appId: ${APP_ID}
+tags:
+  - regression-p0
+  - kasir
+  - catalog
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/kasir/kasir_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Navigate to Kasir menu from Dashboard
+- tapOn: "${output.kasir_page.kasirMenuButton}"
+- tapOn:
+    text: "Mengerti"
+    optional: true
+- assertVisible: "Kasir"
+
+# [KASIR-01] Add product to cart from katalog
+- copyTextFrom:
+    text: "Keranjang \\([0-9]+\\)"
+- evalScript: ${output.startCount = output.kasir_utils.parseCount(maestro.copiedText)}
+- tapOn: "${output.kasir_page.productRegularText}"
+- tapOn: "${output.kasir_page.variantReguler}"
+- tapOn:
+    point: "${output.kasir_page.variantSheetQtyPlusPoint}"
+- tapOn: "${output.kasir_page.variantSheetAdd}"
+
+# [KASIR-07] Verify quantity added in cart button
+- assertVisible: "Keranjang \\(${output.startCount + 1}\\)"
+
+# [KASIR-03] Increase qty in katalog
+- tapOn: "${output.kasir_page.productRegularText}"
+- tapOn: "${output.kasir_page.variantReguler}"
+- tapOn:
+    point: "${output.kasir_page.variantSheetQtyPlusPoint}"
+- tapOn: "${output.kasir_page.variantSheetAdd}"
+- assertVisible: "Keranjang \\(${output.startCount + 2}\\)"
+
+# [KASIR-04] Decrease qty in katalog
+- tapOn: "${output.kasir_page.productRegularText}"
+- tapOn: "${output.kasir_page.variantReguler}"
+- tapOn:
+    point: "${output.kasir_page.variantSheetQtyMinusPoint}"
+- tapOn: "${output.kasir_page.variantSheetAdd}"
+- assertVisible: "Keranjang.*"
+
+# [KASIR-05] Edit qty manualy in katalog
+- tapOn: "${output.kasir_page.productRegularText}"
+- tapOn: "${output.kasir_page.variantReguler}"
+- tapOn:
+    point: "${output.kasir_page.variantSheetQtyInputPoint}"
+- pressKey: "backspace"
+- inputText: "3"
+- hideKeyboard
+- tapOn: "${output.kasir_page.variantSheetAdd}"
+- assertVisible: "Keranjang.*"
+
+# [KASIR-06] Input decimal quantity
+- tapOn: "${output.kasir_page.productRegularText}"
+- tapOn: "${output.kasir_page.variantReguler}"
+- tapOn:
+    point: "${output.kasir_page.variantSheetQtyInputPoint}"
+- pressKey: "backspace"
+- inputText: "1.5"
+- hideKeyboard
+- tapOn: "${output.kasir_page.variantSheetAdd}"
+- assertVisible: "Keranjang.*"
+
+# [KASIR-02] Add product manualy
+- tapOn: "${output.kasir_page.customProductButton}"
+- tapOn: "${output.kasir_page.customNameField}"
+- inputText: "Item Kostum Baru"
+- hideKeyboard
+- tapOn: "${output.kasir_page.customPriceField}"
+- inputText: "15000"
+- hideKeyboard
+- tapOn: "${output.kasir_page.customQtyField}"
+- inputText: "1"
+- hideKeyboard
+- tapOn: "${output.kasir_page.customSaveButton}"
+- assertVisible: "Keranjang.*"
+
+# [KASIR-08] Verify other category shown
+- tapOn: "${output.kasir_page.categorySembako}"
+- assertVisible: "${output.kasir_page.productRegularText}"
+- tapOn: "${output.kasir_page.categorySemua}"
+- assertVisible: "Kasir"
+
+# [KASIR-09] Search product by text
+- tapOn:
+    point: "${output.kasir_page.searchIconPoint}"
+- tapOn:
+    point: "${output.kasir_page.searchFieldPoint}"
+- inputText: "beras"
+- hideKeyboard
+- assertVisible: ".*beras.*"
+- tapOn: "${output.kasir_page.searchCloseButton}"
+
+# [KASIR-10] Search product by scanner
+- tapOn: "${output.kasir_page.scanBarcodeButton}"
+- assertVisible: "Pilih Mode"
+- tapOn:
+    text: "Scan Barcode"
+    below: "Pilih Mode"
+- assertVisible: "Tutup"
+- tapOn: "${output.kasir_page.searchCloseButton}"
+
+# [KASIR-11] Scan barcode by device camera
+- tapOn: "${output.kasir_page.scanBarcodeButton}"
+- tapOn: "Buka Kamera"
+- tapOn:
+    text: "While using the app"
+    optional: true
+- assertVisible: "Siap memindai"
+- tapOn: "Kembali"
+- assertVisible: "Kasir"
+
+# [KASIR-12] Scan bercode by scanner
+- tapOn: "${output.kasir_page.scanBarcodeButton}"
+- tapOn:
+    text: "Scan Barcode"
+    below: "Pilih Mode"
+- inputText: "899123456789"
+- pressKey: "enter"
+- hideKeyboard
+- tapOn: "${output.kasir_page.searchCloseButton}"
+- assertVisible: "Kasir"

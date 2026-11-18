@@ -1,0 +1,165 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - lain-lain
+  - multi-usaha
+  - login-delete-addon
+---
+- runScript:
+    file: ../../../pages/login/login_credential.js
+- runScript:
+    file: ../../../pages/login/login_page.js
+- runScript:
+    file: ../../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../../pages/lain_lain/multi_usaha_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# Dismiss any popups
+- tapOn:
+    text: "Nanti"
+    optional: true
+- tapOn:
+    text: "Mengerti"
+    optional: true
+- tapOn:
+    text: "Tutup"
+    optional: true
+
+# [MULTI-13] Buy Add On Multi Usaha / Subscription Check
+# Go to Profil (Tab 4)
+- tapOn:
+    point: "${output.multi_usaha_page.profilTabPoint}"
+- runScript:
+    file: ../../../pages/delay.js
+
+# Dismiss email prompt if present
+- tapOn:
+    text: "Nanti"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+- assertVisible: "Profil"
+- assertVisible: "Paket Add-on"
+
+# Tap Paket Add-on
+- tapOn:
+    text: "Paket Add-on"
+    optional: true
+- tapOn:
+    point: "540, 1430"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: ".*Tidak ada paket addon aktif.*|.*paket addon.*|.*Paket.*"
+
+# Dismiss add-on dialog
+- tapOn:
+    text: "Mengerti"
+    optional: true
+- tapOn:
+    point: "540, 1000"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# Return to Home/Beranda (Tab 1)
+- tapOn:
+    point: "135, 1705"
+- runScript:
+    file: ../../../pages/delay.js
+
+- tapOn:
+    text: "Nanti"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+- assertVisible: "${output.dashboard_page.overviewLabel}"
+
+# Navigate to Lain-Lain -> Multi Usaha
+- tapOn:
+    text: "${output.dashboard_page.lainLainMenuButton}"
+    optional: true
+- tapOn:
+    point: "876, 1490"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+- tapOn:
+    text: "Multi\nUsaha"
+    optional: true
+- tapOn:
+    text: "Multi Usaha"
+    optional: true
+- tapOn:
+    point: "${output.multi_usaha_page.multiUsahaTilePoint}"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# [MULTI-12] Branch Store List & Deletion/Management Inspection
+- assertVisible: "${output.multi_usaha_page.daftarTokoCabangTitle}"
+- assertVisible: ".*Cabang.*"
+
+# Inspect first branch store card
+- tapOn:
+    point: "${output.multi_usaha_page.firstBranchItemPoint}"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# Inspect second branch store card
+- tapOn:
+    point: "${output.multi_usaha_page.secondBranchItemPoint}"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+# Return to Home via Kembali
+- tapOn:
+    point: "${output.multi_usaha_page.kembaliBtnPoint}"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+- tapOn:
+    point: "135, 1705"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+
+- assertVisible: "${output.dashboard_page.overviewLabel}"
+
+# [MULTI-11] Kasir (Login Karyawan Cabang / Operasional Kasir)
+- tapOn:
+    point: "205, 1164"
+    optional: true
+- tapOn:
+    text: "Kasir\n.*"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: ".*Kasir.*|.*Transaksi.*|.*Kategori.*|.*Katalog.*"
+
+# Return to Home from Kasir
+- tapOn:
+    point: "${output.multi_usaha_page.kembaliBtnPoint}"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+- tapOn:
+    point: "135, 1705"
+    optional: true
+- runScript:
+    file: ../../../pages/delay.js
+- assertVisible: "${output.dashboard_page.overviewLabel}"

@@ -1,0 +1,46 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - daftar-pelanggan
+  - daftar-pelanggan-smoke
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/daftar_pelanggan/daftar_pelanggan_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Dismiss onboarding dialog if visible
+- tapOn:
+    text: "Mengerti"
+    optional: true
+
+# [CUST-01] Open Daftar Pelanggan and complete FTUI coachmarks
+- tapOn:
+    point: "876, 1030"
+- tapOn:
+    text: "${output.daftar_pelanggan_page.coachmarkSkipButton}"
+    optional: true
+- tapOn:
+    text: "${output.daftar_pelanggan_page.coachmarkDoneButton}"
+    optional: true
+- tapOn:
+    text: "${output.daftar_pelanggan_page.coachmarkContinueButton}"
+    optional: true
+- assertVisible: "${output.daftar_pelanggan_page.headerTitle}"
+- assertVisible: "${output.daftar_pelanggan_page.searchPelangganField}"
+- assertVisible: "${output.daftar_pelanggan_page.toggleDebtLabel}"
+- tapOn: "${output.daftar_pelanggan_page.backButton}"
+- assertVisible: "${output.dashboard_page.overviewLabel}"

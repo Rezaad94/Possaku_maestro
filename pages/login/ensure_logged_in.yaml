@@ -1,0 +1,18 @@
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: false
+    stopApp: true
+- extendedWaitUntil:
+    visible: ".*Selamat datang.*|.*Masuk.*|.*Lewati.*|.*Mengerti.*"
+    timeout: 15000
+- runFlow:
+    when:
+      notVisible: ".*Selamat datang.*"
+    file: ../../pages/login/login_flow.yaml
+    env:
+      phoneNumber: "${phoneNumber}"
+      PIN: "${PIN}"
+      expected1: "${expected1}"
+      expected2: "${expected2}"
+- assertVisible: ".*Selamat datang.*"

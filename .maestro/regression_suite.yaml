@@ -1,0 +1,101 @@
+appId: ${APP_ID}
+---
+# ==============================================================================
+# Possaku Master Maestro Regression Suite
+# Generated according to AGENTS.md rules & Domain Symmetry
+# Total Suites: 10 Modules | 50 Comprehensive Flow Files
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Authentication (Login & Logout)
+# ------------------------------------------------------------------------------
+- runFlow: ../flows/login/valid_login_flow.yaml
+- runFlow: ../flows/login/invalid_login_flow.yaml
+- runFlow: ../flows/login/logout_flow.yaml
+
+# ------------------------------------------------------------------------------
+# 2. Dashboard & Shift Management
+# ------------------------------------------------------------------------------
+- runFlow: ../flows/dashboard/overview_flow.yaml
+- runFlow: ../flows/dashboard/filter_flow.yaml
+- runFlow: ../flows/dashboard/open_close_store_flow.yaml
+- runFlow: ../flows/dashboard/daftar_pesanan_flow.yaml
+- runFlow: ../flows/usahaku/open_close_store_flow.yaml
+
+# ------------------------------------------------------------------------------
+# 3. Kasir (Point of Sale, Catalog, Cart & Payments)
+# ------------------------------------------------------------------------------
+- runFlow: ../flows/kasir/catalog_flow.yaml
+- runFlow: ../flows/kasir/cart_flow.yaml
+- runFlow: ../flows/kasir/payment_cash_flow.yaml
+- runFlow: ../flows/kasir/payment_methods_flow.yaml
+- runFlow: ../flows/kasir/preorder_offline_sort_flow.yaml
+
+# ------------------------------------------------------------------------------
+# 4. Atur Produk (Catalog Management, Variants & Categories)
+# ------------------------------------------------------------------------------
+- runFlow: ../flows/atur_produk/atur_produk_flow.yaml
+- runFlow: ../flows/atur_produk/product_catalog_search_sort_flow.yaml
+- runFlow: ../flows/atur_produk/product_category_management_flow.yaml
+- runFlow: ../flows/atur_produk/product_create_variants_flow.yaml
+- runFlow: ../flows/atur_produk/product_add_edit_all_fields_flow.yaml
+- runFlow: ../flows/atur_produk/product_edit_history_delete_flow.yaml
+
+# ------------------------------------------------------------------------------
+# 5. Daftar Pelanggan (Customer Directory & Debt Tracking)
+# ------------------------------------------------------------------------------
+- runFlow: ../flows/daftar_pelanggan/daftar_pelanggan_smoke_flow.yaml
+- runFlow: ../flows/daftar_pelanggan/customer_management_flow.yaml
+- runFlow: ../flows/daftar_pelanggan/customer_debt_flow.yaml
+- runFlow: ../flows/daftar_pelanggan/customer_offline_flow.yaml
+
+# ------------------------------------------------------------------------------
+# 6. Daftar Pesanan (Order Tracking, Status/Period Filters & Queue)
+# ------------------------------------------------------------------------------
+- runFlow: ../flows/daftar_pesanan/order_smoke_flow.yaml
+- runFlow: ../flows/daftar_pesanan/order_status_filter_flow.yaml
+- runFlow: ../flows/daftar_pesanan/order_period_filter_flow.yaml
+- runFlow: ../flows/daftar_pesanan/order_action_flow.yaml
+- runFlow: ../flows/daftar_pesanan/order_queue_reset_flow.yaml
+
+# ------------------------------------------------------------------------------
+# 7. Keuangan (Saku Utama, Laporan, Pengeluaran & Saku Lainnya Pro)
+# ------------------------------------------------------------------------------
+- runFlow: ../flows/keuangan/keuangan_smoke_flow.yaml
+- runFlow: ../flows/keuangan/saku_utama_rekap_transaksi_flow.yaml
+- runFlow: ../flows/keuangan/saku_utama_laporan_penjualan_flow.yaml
+- runFlow: ../flows/keuangan/saku_utama_penjualan_produk_flow.yaml
+- runFlow: ../flows/keuangan/saku_utama_penjualan_karyawan_flow.yaml
+- runFlow: ../flows/keuangan/saku_utama_metode_pembayaran_flow.yaml
+- runFlow: ../flows/keuangan/saku_utama_pajak_hutang_voucher_flow.yaml
+- runFlow: ../flows/keuangan/saku_utama_pengeluaran_flow.yaml
+- runFlow: ../flows/keuangan/saku_utama_filter_flow.yaml
+- runFlow: ../flows/keuangan/saku_lainnya_flow.yaml
+
+# ------------------------------------------------------------------------------
+# 8. (Lain-Lain) Cetak Struk (Receipt Printing & Discounts)
+# ------------------------------------------------------------------------------
+- runFlow: ../flows/lain_lain/cetak_struk/cetak_struk_smoke_flow.yaml
+- runFlow: ../flows/lain_lain/cetak_struk/cetak_struk_product_flow.yaml
+- runFlow: ../flows/lain_lain/cetak_struk/cetak_struk_discount_flow.yaml
+- runFlow: ../flows/lain_lain/cetak_struk/cetak_struk_preview_flow.yaml
+
+# ------------------------------------------------------------------------------
+# 9. (Lain-Lain) Toko Online (Online Store Link, Hours & Settings)
+# ------------------------------------------------------------------------------
+- runFlow: ../flows/lain_lain/toko_online/toko_online_link_qr_flow.yaml
+- runFlow: ../flows/lain_lain/toko_online/toko_online_settings_flow.yaml
+- runFlow: ../flows/lain_lain/toko_online/online_store_setting_flow.yaml
+
+# ------------------------------------------------------------------------------
+# 10. (Lain-Lain) Daftar Karyawan (Staff Directory, Salary & Payslip)
+# ------------------------------------------------------------------------------
+- runFlow: ../flows/lain_lain/daftar_karyawan/karyawan_management_flow.yaml
+- runFlow: ../flows/lain_lain/daftar_karyawan/karyawan_salary_payslip_flow.yaml
+
+# ------------------------------------------------------------------------------
+# 11. (Lain-Lain) Multi Usaha Pro (Branch Store Lifecycle & Cashier Login)
+# ------------------------------------------------------------------------------
+- runFlow: ../flows/lain_lain/multi_usaha/multi_usaha_branch_flow.yaml
+- runFlow: ../flows/lain_lain/multi_usaha/multi_usaha_modules_flow.yaml
+- runFlow: ../flows/lain_lain/multi_usaha/multi_usaha_login_delete_flow.yaml

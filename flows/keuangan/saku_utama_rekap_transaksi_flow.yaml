@@ -1,0 +1,83 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - keuangan
+  - saku-utama-rekap
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/keuangan/keuangan_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Open Keuangan and navigate to Rekap Transaksi
+- tapOn: "${output.dashboard_page.keuanganMenuButton}"
+- assertVisible: "${output.keuangan_page.headerTitle}"
+- tapOn: ".*Saku Utama.*"
+- assertVisible: "${output.keuangan_page.menuRekapTransaksi}"
+- tapOn: "${output.keuangan_page.menuRekapTransaksi}"
+- assertVisible: "${output.keuangan_page.rekapTitle}"
+
+# [KEU-11] View summary in rekap transaksi
+- assertVisible: "${output.keuangan_page.rekapMetodePenjualanLabel}"
+- assertVisible: "${output.keuangan_page.rekapLunasLabel}"
+- assertVisible: "${output.keuangan_page.rekapPiutangLabel}"
+- assertVisible: "${output.keuangan_page.rekapTotalPenjualanLabel}"
+- assertVisible: "${output.keuangan_page.rekapTotalPengeluaranLabel}"
+
+# [KEU-08] List transaction in rekap transaksi
+- assertVisible: "${output.keuangan_page.rekapRiwayatTransaksiTitle}"
+- assertVisible: ".*INV.*"
+
+# [KEU-09] Search transaction in rekap transaksi
+- tapOn: "${output.keuangan_page.rekapSearchInputHint}"
+- inputText: "beras oye"
+- pressKey: "enter"
+- assertVisible: ".*beras oye.*"
+- tapOn:
+    point: "${output.keuangan_page.rekapSearchInputPoint}"
+- eraseText: 15
+- pressKey: "enter"
+
+# [KEU-10] Download in rekap transaksi
+- tapOn:
+    point: "${output.keuangan_page.downloadReportPoint}"
+- assertVisible: ".*pdf.*"
+- back
+- assertVisible: "${output.keuangan_page.rekapTitle}"
+
+# [KEU-12] Open penjulan in rekap transaksi
+- tapOn: "${output.keuangan_page.tabPenjualan}"
+- assertVisible: "${output.keuangan_page.laporanPenjualanTitle}"
+- tapOn: "${output.keuangan_page.tabRekapTransaksi}"
+- assertVisible: "${output.keuangan_page.rekapTitle}"
+
+# [KEU-13] Open pengeluaran in rekap transaksi
+- tapOn: "${output.keuangan_page.backButton}"
+- assertVisible: "${output.keuangan_page.menuRekapTransaksi}"
+- swipe:
+    start: "50%,80%"
+    end: "50%,20%"
+- tapOn: "${output.keuangan_page.menuPengeluaran}"
+- assertVisible: "${output.keuangan_page.pengeluaranTitle}"
+
+# [TEARDOWN] Return to Dashboard from Keuangan
+- tapOn: "${output.keuangan_page.backButton}"
+- assertVisible: "${output.keuangan_page.menuPengeluaran}"
+- tapOn: "${output.keuangan_page.backButton}"
+- assertVisible: "${output.keuangan_page.headerTitle}"
+- tapOn: "${output.keuangan_page.backButton}"
+- assertVisible: "${output.dashboard_page.overviewLabel}"
+

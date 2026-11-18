@@ -1,0 +1,80 @@
+appId: com.cloudiex.possaku
+---
+- runScript:
+    file: ../../pages/login/login_page.js
+
+- launchApp:
+    clearState: true
+- runScript:
+    file: ../../pages/delay.js
+- tapOn:
+    text: "Mengerti"
+    optional: true
+- runScript:
+    file: ../../pages/delay.js
+- tapOn:
+    text: "${output.login_page.skipButton}"
+    optional: true
+
+- runScript:
+    file: ../../pages/delay.js
+- runFlow:
+    commands:
+      - tapOn: "${output.login_page.skipButton}"
+      - runScript:
+          file: ../../pages/delay.js
+    when:
+      notVisible: "${output.login_page.loginButton}"
+- runFlow:
+    commands:
+      - tapOn: "${output.login_page.loginButton}"
+      - runScript:
+          file: ../../pages/delay.js
+    when:
+      notVisible: "${output.login_page.phoneNumberField}"
+- tapOn: "${output.login_page.phoneNumberField}"
+- inputText: "${phoneNumber}"
+- pressKey: "enter"
+- tapOn:
+    point: "${output.login_page.PINField}"
+- inputText: "${PIN}"
+- pressKey: "enter"
+- tapOn: "${output.login_page.submitButton}"
+- runScript:
+    file: ../../pages/delay.js
+- runScript:
+    file: ../../pages/delay.js
+- runScript:
+    file: ../../pages/delay.js
+- runFlow:
+    when:
+      visible: ".*Masalah koneksi.*"
+    commands:
+      - tapOn:
+          point: "540,1160"
+      - runScript:
+          file: ../../pages/delay.js
+      - tapOn: "${output.login_page.submitButton}"
+      - runScript:
+          file: ../../pages/delay.js
+      - runScript:
+          file: ../../pages/delay.js
+- tapOn:
+    text: "Mengerti"
+    optional: true
+- runFlow:
+    when:
+      notVisible: "${expected1}"
+    commands:
+      - tapOn:
+          text: "Mengerti"
+          optional: true
+- assertVisible: 
+    text: "${expected1}"
+- runFlow:
+    commands:
+      - assertVisible:
+          text: "${expected2}"
+    when:
+      true: "${typeof expected2 !== 'undefined' && expected2 !== null && expected2 !== ''}"
+

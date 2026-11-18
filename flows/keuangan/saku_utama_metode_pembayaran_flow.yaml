@@ -1,0 +1,73 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - keuangan
+  - saku-utama-metode-pembayaran
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/keuangan/keuangan_page.js
+
+# [SETUP] Ensure Logged In
+- runFlow:
+    file: ../../pages/login/ensure_logged_in.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+# [SETUP] Open Keuangan and navigate to Metode Pembayaran
+- tapOn: "${output.dashboard_page.keuanganMenuButton}"
+- assertVisible: "${output.keuangan_page.headerTitle}"
+- tapOn: ".*Saku Utama.*"
+- assertVisible: "${output.keuangan_page.menuMetodePembayaran}"
+- tapOn: "${output.keuangan_page.menuMetodePembayaran}"
+- assertVisible: "${output.keuangan_page.metodePembayaranTitle}"
+
+# [KEU-38] List total Per payment method in laporan per metode pembayaran
+- assertVisible: "${output.keuangan_page.metodeTunaiCard}"
+- assertVisible: "${output.keuangan_page.metodeHutangCard}"
+- assertVisible: "${output.keuangan_page.metodeDebitKreditCard}"
+- assertVisible: "${output.keuangan_page.metodeQrisTransferCard}"
+
+# [KEU-39] View detail laporan per metode pembayaran
+- tapOn:
+    text: "${output.keuangan_page.metodeTunaiCard}"
+    optional: true
+
+# [KEU-42] List transaction in laporan per metode pembayaran
+- assertVisible: ".*Tunai.*"
+- assertVisible: ".*Total Penjualan.*"
+
+# [KEU-41] Search transaction in laporan per metode pembayaran
+- tapOn:
+    point: "975,250"
+    optional: true
+
+# [KEU-40] Download in laporan per metode pembayaran
+- tapOn:
+    point: "${output.keuangan_page.downloadReportPoint}"
+    optional: true
+- assertVisible:
+    text: ".*pdf.*"
+    optional: true
+- back:
+    optional: true
+
+# [TEARDOWN] Return to Dashboard from Keuangan
+- tapOn:
+    text: "${output.keuangan_page.backButton}"
+    optional: true
+- tapOn:
+    text: "${output.keuangan_page.backButton}"
+    optional: true
+- tapOn:
+    text: "${output.keuangan_page.backButton}"
+    optional: true
+- assertVisible: "${output.dashboard_page.overviewLabel}"

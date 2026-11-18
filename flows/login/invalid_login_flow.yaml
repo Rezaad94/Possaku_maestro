@@ -1,0 +1,62 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - auth
+---
+# [SETUP] Load Credentials
+- runScript:
+    file: ../../pages/login/login_credential.js
+
+# [AUTH-03] Login with empty PIN
+- runFlow:
+    label: "Login with empty PIN"
+    file: ../../pages/login/login_flow.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber1}"
+      PIN: ""
+      expected1: ".*Isikan nomor pin anda.*"
+      expected2: ""
+    
+
+# [AUTH-04] Login with empty phone number
+- runFlow:
+    label: "Login with empty phone number"
+    file: ../../pages/login/login_flow.yaml
+    env:
+      phoneNumber: ""
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Isikan nomor telepon anda.*"
+      expected2: ""
+    
+
+# [AUTH-05] Login with invalid phone number or PIN
+- runFlow:
+    label: "Login with invalid phone number or PIN"
+    file: ../../pages/login/login_flow.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.invalidPhoneNumber}"
+      PIN: "${output.login_credential.dev.invalidPIN}"
+      expected1: ".*Nomor Telepon yang anda masukkan salah / tidak terdaftar.*"
+      expected2: ""
+
+# [AUTH-06] Login with empty phone number and PIN
+- runFlow:
+    label: "Login with empty phone number and PIN"
+    file: ../../pages/login/login_flow.yaml
+    env:
+      phoneNumber: ""
+      PIN: ""
+      expected1: ".*Isikan nomor telepon anda.*"
+      expected2: ".*Isikan nomor pin anda.*"
+    
+
+# [AUTH-07] Login with inactive user
+- runFlow:
+    label: "Login with inactive user"
+    file: ../../pages/login/login_flow.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.inactiveUserPhoneNumber}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Status User Tidak Aktif!.*"
+      expected2: ""
+    

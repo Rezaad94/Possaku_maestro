@@ -1,0 +1,64 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - usahaku
+  - custom-struk
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/usahaku/usahaku_page.js
+
+# Setup: Login
+- runFlow:
+    file: ../../pages/login/login_flow.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+- tapOn:
+    text: "Mengerti"
+    optional: true
+
+# Navigate to Usahaku Tab
+- tapOn: "${output.usahaku_page.usahakuTab}"
+- assertVisible: "${output.usahaku_page.usahakuHeader}"
+
+# [USAHAKU-11] Edit Custom Struk (Atur Struk Kostum)
+- scrollUntilVisible:
+    element:
+      text: "${output.usahaku_page.aturStrukCard}"
+    direction: DOWN
+- tapOn: "${output.usahaku_page.aturStrukCard}"
+- assertVisible: "${output.usahaku_page.aturStrukKostumHeader}"
+- assertVisible: "${output.usahaku_page.uploadLogoBtn}"
+- assertVisible: "${output.usahaku_page.namaTokoField}"
+- assertVisible: "${output.usahaku_page.informasiAlamatField}"
+- assertVisible: "${output.usahaku_page.nomorTeleponField}"
+
+# [USAHAKU-12] Preview Custom Struk
+- tapOn:
+    point: "${output.usahaku_page.previewStrukBtnPoint}"
+
+# Verify receipt simulation preview rendered
+- extendedWaitUntil:
+    visible: "${output.usahaku_page.previewReceiptTotalLabel}"
+    timeout: 3000
+
+# Dismiss preview
+- back:
+    optional: true
+
+# Save receipt settings
+- tapOn: "${output.usahaku_page.simpanBtn}"
+
+# Return to Usahaku overview
+- tapOn:
+    point: "${output.usahaku_page.kembaliBtnPoint}"
+- assertVisible: "${output.usahaku_page.usahakuTab}"

@@ -1,0 +1,101 @@
+appId: ${APP_ID}
+tags:
+  - regression-p0
+  - riwayat
+  - riwayat-tabs
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/riwayat/riwayat_page.js
+
+# Setup: Login
+- runFlow:
+    file: ../../pages/login/login_flow.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+- tapOn:
+    text: "Mengerti"
+    optional: true
+
+# [RIWAYAT-01] Navigate to Riwayat and Verify Semua Tab
+- tapOn: "${output.riwayat_page.riwayatTab}"
+- assertVisible: "${output.riwayat_page.riwayatHeader}"
+- assertVisible: "${output.riwayat_page.headerDateFilter}"
+- assertVisible: "${output.riwayat_page.tabSemua}"
+
+# [RIWAYAT-02] View Online Order Tab
+- tapOn: "${output.riwayat_page.tabOnlineOrder}"
+- extendedWaitUntil:
+    visible: "${output.riwayat_page.tabResetFilter}"
+    timeout: 3000
+
+# [RIWAYAT-03] View Penjualan Tab
+- tapOn: "${output.riwayat_page.tabPenjualan}"
+- extendedWaitUntil:
+    visible: "${output.riwayat_page.tabResetFilter}"
+    timeout: 3000
+
+# Swipe Horizontal Tabs to reveal remaining categories
+- swipe:
+    start: "65%,18%"
+    end: "10%,18%"
+
+# [RIWAYAT-04] View Pengeluaran Tab (if visible in current scroll)
+- tapOn:
+    text: "${output.riwayat_page.tabPengeluaran}"
+    optional: true
+
+# [RIWAYAT-05] View Angsuran Hutang Tab (if visible)
+- tapOn:
+    text: "${output.riwayat_page.tabAngsuranHutang}"
+    optional: true
+
+# [RIWAYAT-06] View QRIS Tab
+- tapOn: "${output.riwayat_page.tabQris}"
+- extendedWaitUntil:
+    visible: "${output.riwayat_page.tabResetFilter}"
+    timeout: 3000
+
+# [RIWAYAT-07] View Transfer Tab
+- tapOn: "${output.riwayat_page.tabTransfer}"
+- extendedWaitUntil:
+    visible: "${output.riwayat_page.tabResetFilter}"
+    timeout: 3000
+
+# [RIWAYAT-08] View Transaksi Dibatalkan Tab
+- tapOn: "${output.riwayat_page.tabTransaksiDibatalkan}"
+- extendedWaitUntil:
+    visible: "${output.riwayat_page.tabResetFilter}"
+    timeout: 3000
+
+# [RIWAYAT-09] View Debit/Kredit Tab
+- swipe:
+    start: "65%,18%"
+    end: "30%,18%"
+    optional: true
+- tapOn:
+    text: "${output.riwayat_page.tabDebitKredit}"
+    optional: true
+- extendedWaitUntil:
+    visible: "${output.riwayat_page.tabResetFilter}"
+    timeout: 3000
+
+# [RIWAYAT-12] Reset Filter Functionality
+- tapOn: "${output.riwayat_page.tabResetFilter}"
+
+# Swipe back tabs to beginning
+- swipe:
+    start: "10%,18%"
+    end: "65%,18%"
+
+# Verify Semua Tab is restored after Reset
+- assertVisible: "${output.riwayat_page.tabSemua}"

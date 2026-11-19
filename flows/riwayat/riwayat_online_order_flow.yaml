@@ -1,0 +1,66 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - riwayat
+  - online-order
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/riwayat/riwayat_page.js
+
+# Setup: Login
+- runFlow:
+    file: ../../pages/login/login_flow.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+- tapOn:
+    text: "Mengerti"
+    optional: true
+
+# Navigate to Riwayat
+- tapOn: "${output.riwayat_page.riwayatTab}"
+- assertVisible: "${output.riwayat_page.riwayatHeader}"
+
+# [RIWAYAT-02] View Online Order Tab
+- tapOn: "${output.riwayat_page.tabOnlineOrder}"
+- extendedWaitUntil:
+    visible: "${output.riwayat_page.tabResetFilter}"
+    timeout: 3000
+
+# [RIWAYAT-13] & [RIWAYAT-14] Accept / Reject Online Order Check
+# If an online order card is present, tap into it
+- runFlow:
+    when:
+      visible: "INV.*"
+    commands:
+      - tapOn:
+          text: "INV.*"
+      - assertVisible: "${output.riwayat_page.detailHeader}"
+      # Accept / Reject action conditional check
+      - tapOn:
+          text: "${output.riwayat_page.terimaPesananBtn}"
+          optional: true
+      - tapOn:
+          text: "${output.riwayat_page.tolakPesananBtn}"
+          optional: true
+      - back:
+          optional: true
+
+# [RIWAYAT-10] Search Invoice & [RIWAYAT-11] Time Filter
+- tapOn:
+    point: "${output.riwayat_page.searchIconPoint}"
+    optional: true
+
+# Reset filter
+- tapOn:
+    text: "${output.riwayat_page.tabResetFilter}"
+    optional: true

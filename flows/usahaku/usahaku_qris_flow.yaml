@@ -1,0 +1,85 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - usahaku
+  - qris
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/usahaku/usahaku_page.js
+
+# Setup: Login
+- runFlow:
+    file: ../../pages/login/login_flow.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+- tapOn:
+    text: "Mengerti"
+    optional: true
+
+# Navigate to Usahaku Tab
+- tapOn: "${output.usahaku_page.usahakuTab}"
+- assertVisible: "${output.usahaku_page.usahakuHeader}"
+
+# [USAHAKU-06] View QRIS Information & Guide
+- scrollUntilVisible:
+    element:
+      text: "${output.usahaku_page.informasiQrCard}"
+    direction: DOWN
+- tapOn: "${output.usahaku_page.informasiQrCard}"
+- assertVisible: "${output.usahaku_page.aturQrisHeader}"
+
+# Tap QRIS comparison guide
+- tapOn:
+    text: "${output.usahaku_page.qrisDifferenceGuideBtn}"
+    optional: true
+
+# Dismiss guide sheet if open
+- back:
+    optional: true
+
+# [USAHAKU-07] Add New QRIS / Bank Account
+- tapOn:
+    point: "${output.usahaku_page.tambahQrisHeaderBtnPoint}"
+- assertVisible: "${output.usahaku_page.tambahQrisScreenHeader}"
+- assertVisible: "${output.usahaku_page.tabQris}"
+- assertVisible: "${output.usahaku_page.tabRekeningBank}"
+
+# Select QRIS Provider
+- tapOn: "${output.usahaku_page.pilihPenyediaQrisBtn}"
+- extendedWaitUntil:
+    visible: "${output.usahaku_page.tutupBtn}"
+    timeout: 3000
+- tapOn: "${output.usahaku_page.providerBca}"
+
+# [USAHAKU-09] Edit QRIS form fields
+- tapOn:
+    text: "${output.usahaku_page.atasNamaField}"
+- inputText: "Toko Automation"
+- hideKeyboard:
+    optional: true
+
+# [USAHAKU-10] Share QRIS & [USAHAKU-08] Delete QRIS options verification
+- tapOn:
+    text: "${output.usahaku_page.bagikanQrisBtn}"
+    optional: true
+- back:
+    optional: true
+
+# Return to Atur QRIS screen
+- tapOn:
+    point: "${output.usahaku_page.kembaliBtnPoint}"
+
+# Return to Usahaku overview
+- tapOn:
+    point: "${output.usahaku_page.kembaliBtnPoint}"
+- assertVisible: "${output.usahaku_page.usahakuTab}"

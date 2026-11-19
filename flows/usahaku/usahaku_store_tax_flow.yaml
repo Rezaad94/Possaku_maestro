@@ -1,0 +1,90 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - usahaku
+  - store-tax
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/usahaku/usahaku_page.js
+
+# Setup: Login
+- runFlow:
+    file: ../../pages/login/login_flow.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+- tapOn:
+    text: "Mengerti"
+    optional: true
+
+# Navigate to Usahaku Tab
+- tapOn: "${output.usahaku_page.usahakuTab}"
+- assertVisible: "${output.usahaku_page.usahakuHeader}"
+
+# [USAHAKU-03] Change Store Information (Informasi Usaha -> Ubah)
+- tapOn:
+    text: "${output.usahaku_page.ubahStoreInfoBtn}"
+    optional: true
+
+# If edit form is opened, verify fields or dismiss
+- back:
+    optional: true
+
+# [USAHAKU-04] Activate Tax (Pajak Aktif)
+- scrollUntilVisible:
+    element:
+      text: "${output.usahaku_page.pajakCard}"
+    direction: DOWN
+- tapOn: "${output.usahaku_page.pajakCard}"
+- assertVisible: "${output.usahaku_page.aturPajakHeader}"
+
+# Toggle tax switch
+- tapOn:
+    point: "${output.usahaku_page.pajakSwitchPoint}"
+
+# Save Tax Settings
+- tapOn: "${output.usahaku_page.simpanBtn}"
+
+# Verify Success Dialog
+- extendedWaitUntil:
+    visible: "${output.usahaku_page.pajakSuccessDialog}"
+    timeout: 5000
+
+# Dismiss dialog
+- tapOn: "${output.usahaku_page.tutupBtn}"
+- back:
+    optional: true
+
+# Verify tax updated on Usahaku Screen
+- assertVisible: "${output.usahaku_page.pajakCard}"
+
+# [USAHAKU-05] Deactivate Tax (Pajak Tidak Aktif)
+- tapOn: "${output.usahaku_page.pajakCard}"
+- assertVisible: "${output.usahaku_page.aturPajakHeader}"
+
+# Toggle tax switch back
+- tapOn:
+    point: "${output.usahaku_page.pajakSwitchPoint}"
+
+# Save Tax Settings
+- tapOn: "${output.usahaku_page.simpanBtn}"
+
+# Dismiss Success Dialog
+- extendedWaitUntil:
+    visible: "${output.usahaku_page.pajakSuccessDialog}"
+    timeout: 5000
+- tapOn: "${output.usahaku_page.tutupBtn}"
+- back:
+    optional: true
+
+# Return to Usahaku overview
+- assertVisible: "${output.usahaku_page.usahakuTab}"

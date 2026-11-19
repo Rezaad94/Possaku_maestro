@@ -1,0 +1,69 @@
+appId: ${APP_ID}
+tags:
+  - regression-p1
+  - usahaku
+  - tag-usaha
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/usahaku/usahaku_page.js
+
+# Setup: Login
+- runFlow:
+    file: ../../pages/login/login_flow.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+- tapOn:
+    text: "Mengerti"
+    optional: true
+
+# Navigate to Usahaku Tab
+- tapOn: "${output.usahaku_page.usahakuTab}"
+- assertVisible: "${output.usahaku_page.usahakuHeader}"
+
+# [USAHAKU-13] Open Tag Usaha
+- scrollUntilVisible:
+    element:
+      text: "${output.usahaku_page.tagUsahaCard}"
+    direction: DOWN
+- tapOn: "${output.usahaku_page.tagUsahaCard}"
+- assertVisible: "${output.usahaku_page.tagScreenHeader}"
+- assertVisible: "${output.usahaku_page.cariTagInput}"
+
+# [USAHAKU-15] Search Tag
+- tapOn:
+    point: "${output.usahaku_page.cariTagPoint}"
+- inputText: "Toko"
+- hideKeyboard:
+    optional: true
+
+# [USAHAKU-14] Add New Tag Usaha (Tag Baru dialog)
+- tapOn:
+    point: "${output.usahaku_page.tambahTagHeaderBtnPoint}"
+- assertVisible: "${output.usahaku_page.tagBaruDialogHeader}"
+- assertVisible: "${output.usahaku_page.namaTagField}"
+
+# Input tag name
+- tapOn:
+    text: "${output.usahaku_page.namaTagField}"
+- inputText: "Tag Otomasi"
+- hideKeyboard:
+    optional: true
+
+# [USAHAKU-16] Close dialog / Delete tag action
+- tapOn: "${output.usahaku_page.tutupTagDialogBtn}"
+
+# Save Tag Selection
+- tapOn: "${output.usahaku_page.simpanTagBtn}"
+
+# Return to Usahaku overview
+- assertVisible: "${output.usahaku_page.usahakuTab}"

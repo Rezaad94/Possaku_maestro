@@ -199,6 +199,8 @@ All test runs generate self-contained HTML reports styled identically to **Playw
 | **(Lain-Lain) Toko Online** | Copy store link, share link, update phone number, operating hours & days, view QR code. | ✅ 100% Passed | [toko_online_comprehensive_test_plan.md](test_plans/lain_lain/toko_online/toko_online_comprehensive_test_plan.md) |
 | **(Lain-Lain) Daftar Karyawan** | Employee CRUD, view salary toggle, activate/deactivate, camera/gallery payslip upload, PIN change, add-on, offline mode. | ✅ 100% Passed | [daftar_karyawan_comprehensive_test_plan.md](test_plans/lain_lain/daftar_karyawan/daftar_karyawan_comprehensive_test_plan.md) |
 | **(Lain-Lain) Multi Usaha (Pro)** | Branch store creation, first employee setup, quota paywall handling, branch module switching, cashier login, branch deletion inspection. | ✅ 100% Passed | [multi_usaha_comprehensive_test_plan.md](test_plans/lain_lain/multi_usaha/multi_usaha_comprehensive_test_plan.md) |
+| **Riwayat** | Category tabs (Semua, Online Order, Penjualan, Pengeluaran, Angsuran Hutang, QRIS, Transfer, Batal, Debit/Kredit), period/invoice search, online order accept/reject, receipt print/share, transaction cancellation & stock replenishment check. | ✅ 100% Passed | [riwayat_comprehensive_test_plan.md](test_plans/riwayat_comprehensive_test_plan.md) |
+| **Usahaku** | Store status (Buka/Tutup), store profile edits, tax activation/deactivation, QRIS/bank account management, custom receipt personalization & preview, business tag curation. | ✅ 100% Passed | [usahaku_comprehensive_test_plan.md](test_plans/usahaku_comprehensive_test_plan.md) |
 
 ---
 

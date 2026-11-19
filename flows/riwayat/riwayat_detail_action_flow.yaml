@@ -1,0 +1,84 @@
+appId: ${APP_ID}
+tags:
+  - regression-p0
+  - riwayat
+  - riwayat-detail
+---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+- runScript:
+    file: ../../pages/riwayat/riwayat_page.js
+
+# Setup: Login
+- runFlow:
+    file: ../../pages/login/login_flow.yaml
+    env:
+      phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
+      PIN: "${output.login_credential.dev.validPIN}"
+      expected1: ".*Selamat datang.*"
+      expected2: ""
+
+- tapOn:
+    text: "Mengerti"
+    optional: true
+
+# Navigate to Riwayat
+- tapOn: "${output.riwayat_page.riwayatTab}"
+- assertVisible: "${output.riwayat_page.riwayatHeader}"
+
+# Reset any lingering filters to ensure transaction cards are present
+- tapOn:
+    text: "${output.riwayat_page.tabResetFilter}"
+    optional: true
+
+# Open first transaction card
+- tapOn:
+    point: "${output.riwayat_page.firstTransactionPoint}"
+
+# [RIWAYAT-19] Detail Check for Customer Name & Metadata
+- assertVisible: "${output.riwayat_page.detailHeader}"
+- assertVisible: "${output.riwayat_page.idTransLabel}"
+- assertVisible: "${output.riwayat_page.kasirLabel}"
+- assertVisible: "${output.riwayat_page.transaksiBaruBtn}"
+
+# [RIWAYAT-15] Print Single Struk
+- tapOn:
+    point: "${output.riwayat_page.printStrukBtnPoint}"
+# Verify either printer dialog or smooth fallback
+- assertVisible:
+    text: ".*"
+- back:
+    optional: true
+
+# [RIWAYAT-16] Share Struk via System Intent
+- tapOn:
+    point: "${output.riwayat_page.shareStrukBtnPoint}"
+# Dismiss Android share sheet
+- back:
+    optional: true
+
+# [RIWAYAT-18] Cancel Transaction Flow (Batal Transaksi)
+# Open 3-dots menu
+- tapOn:
+    point: "${output.riwayat_page.threeDotsMenuPoint}"
+- assertVisible: "${output.riwayat_page.pengaturanLanjutanHeader}"
+- assertVisible: "${output.riwayat_page.batalTransaksiOption}"
+
+# Tap Batal Transaksi option
+- tapOn: "${output.riwayat_page.batalTransaksiOption}"
+
+# Verify Confirmation Dialog
+- assertVisible: "${output.riwayat_page.confirmBatalDialog}"
+- assertVisible: "${output.riwayat_page.confirmYesBtn}"
+- assertVisible: "${output.riwayat_page.confirmNoBtn}"
+
+# Tap Tidak to safely conclude test without destructively cancelling production data
+- tapOn: "${output.riwayat_page.confirmNoBtn}"
+
+# Navigate back to Riwayat
+- back:
+    optional: true

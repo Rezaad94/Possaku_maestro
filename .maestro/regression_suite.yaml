@@ -99,3 +99,19 @@ appId: ${APP_ID}
 - runFlow: ../flows/lain_lain/multi_usaha/multi_usaha_branch_flow.yaml
 - runFlow: ../flows/lain_lain/multi_usaha/multi_usaha_modules_flow.yaml
 - runFlow: ../flows/lain_lain/multi_usaha/multi_usaha_login_delete_flow.yaml
+
+# ------------------------------------------------------------------------------
+# 12. Riwayat (Transaction History, Receipt Operations & Voiding)
+# ------------------------------------------------------------------------------
+- runFlow: ../flows/riwayat/riwayat_tabs_filter_flow.yaml
+- runFlow: ../flows/riwayat/riwayat_detail_action_flow.yaml
+- runFlow: ../flows/riwayat/riwayat_online_order_flow.yaml
+
+# ------------------------------------------------------------------------------
+# 13. Usahaku (Store Operations, Tax, QRIS, Struk & Tags)
+# ------------------------------------------------------------------------------
+- runFlow: ../flows/usahaku/open_close_store_flow.yaml
+- runFlow: ../flows/usahaku/usahaku_store_tax_flow.yaml
+- runFlow: ../flows/usahaku/usahaku_qris_flow.yaml
+- runFlow: ../flows/usahaku/usahaku_custom_struk_flow.yaml
+- runFlow: ../flows/usahaku/usahaku_tag_usaha_flow.yaml

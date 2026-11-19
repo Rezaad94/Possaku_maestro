@@ -16,6 +16,7 @@ on:
           - 'flows/daftar_pelanggan/'
           - 'flows/daftar_pesanan/'
           - 'flows/keuangan/'
+          - 'flows/riwayat/'
           - 'flows/usahaku/'
           - 'flows/login/'
           - 'flows/lain_lain/'
@@ -72,7 +73,14 @@ on:
           - 'flows/login/invalid_login_flow.yaml'
           - 'flows/login/logout_flow.yaml'
           - 'flows/login/valid_login_flow.yaml'
+          - 'flows/riwayat/riwayat_detail_action_flow.yaml'
+          - 'flows/riwayat/riwayat_online_order_flow.yaml'
+          - 'flows/riwayat/riwayat_tabs_filter_flow.yaml'
           - 'flows/usahaku/open_close_store_flow.yaml'
+          - 'flows/usahaku/usahaku_custom_struk_flow.yaml'
+          - 'flows/usahaku/usahaku_qris_flow.yaml'
+          - 'flows/usahaku/usahaku_store_tax_flow.yaml'
+          - 'flows/usahaku/usahaku_tag_usaha_flow.yaml'
       apk_path:
         description: 'Optional path to APK file (e.g. app-release.apk)'
         required: false

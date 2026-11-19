@@ -3,16 +3,23 @@ appId: ${APP_ID}
 - launchApp:
     clearState: false
     stopApp: true
+# Wait for EITHER the welcome/login screen OR the main dashboard to appear
 - extendedWaitUntil:
-    visible: ".*Selamat datang.*|.*Masuk.*|.*Lewati.*|.*Mengerti.*"
-    timeout: 15000
+    visible: ".*Selamat datang.*|.*Masuk.*|.*Lewati.*|.*Mengerti.*|Kasir|Overview"
+    timeout: 20000
+# Only run the full login flow if the login screen is actually showing
 - runFlow:
     when:
-      notVisible: ".*Selamat datang.*"
+      visible: ".*Selamat datang.*|.*Masuk.*|.*Lewati.*"
     file: ../../pages/login/login_flow.yaml
     env:
       phoneNumber: "${phoneNumber}"
       PIN: "${PIN}"
       expected1: "${expected1}"
       expected2: "${expected2}"
-- assertVisible: ".*Selamat datang.*"
+# Dismiss any onboarding/update dialog that may appear after login or on fresh launch
+- tapOn:
+    text: "Mengerti"
+    optional: true
+# Confirm we are on the Dashboard (home screen) — works whether we just logged in or were already logged in
+- assertVisible: "Overview"

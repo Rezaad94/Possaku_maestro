@@ -26,5 +26,8 @@ output.dashboard_page = {
   homeTab: "Home\\nTab 1.*",
   riwayatTab: "Riwayat\\nTab 2.*",
   usahakuTab: "Usahaku\\nTab 3.*",
-  profilTab: "Profil\\nTab 4.*"
+  profilTab: "Profil\\nTab 4.*",
+
+  // Profile / Logout — tap the Profil bottom tab to access account & logout
+  profileIcon: "Profil\\nTab 4.*"
 }

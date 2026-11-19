@@ -15,7 +15,7 @@ tags:
 
 # Setup: Login
 - runFlow:
-    file: ../../pages/login/login_flow.yaml
+    file: ../../pages/login/ensure_logged_in.yaml
     env:
       phoneNumber: "${output.login_credential.dev.validPhoneNumber2}"
       PIN: "${output.login_credential.dev.validPIN}"

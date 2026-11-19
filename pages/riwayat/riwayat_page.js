@@ -29,7 +29,7 @@ output.riwayat_page = {
   secondTransactionPoint: "540,950",
 
   // Detail Screen Elements
-  detailHeader: "Transaksi Sukses",
+  detailHeader: "Detail Transaksi",
   idTransLabel: "ID Trans",
   customerLabel: "Pelanggan",
   kasirLabel: "Kasir",

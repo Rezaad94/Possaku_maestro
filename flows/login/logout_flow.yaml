@@ -1,8 +1,15 @@
 appId: ${APP_ID}
 ---
+- runScript:
+    file: ../../pages/login/login_credential.js
+- runScript:
+    file: ../../pages/login/login_page.js
+- runScript:
+    file: ../../pages/dashboard/dashboard_page.js
+
 # [SETUP] Ensure Logged In
 - runFlow:
-    file: ../../pages/login/login_flow.yaml
+    file: ../../pages/login/ensure_logged_in.yaml
     env:
       phoneNumber: "${output.login_credential.dev.validPhoneNumber1}"
       PIN: "${output.login_credential.dev.validPIN}"
@@ -10,7 +17,16 @@ appId: ${APP_ID}
       expected2: ""
 
 # [AUTH-08] Logout from active session
-- tapOn: "${output.dashboard_page.profileIcon}"   # placeholder, replace with actual locator
-- tapOn: "Logout"
-- assertVisible: "${output.login_page.loginButton}"   # login button should appear again
+# Navigate to Profil tab (bottom nav Tab 4)
+- tapOn: "${output.dashboard_page.profileIcon}"
+# Tap Logout button on the profile screen
+- tapOn:
+    text: "Logout"
+    optional: false
+# Confirm logout dialog if it appears
+- tapOn:
+    text: "Ya"
+    optional: true
+# Verify we are back at the login screen
+- assertVisible: "${output.login_page.loginButton}"
 

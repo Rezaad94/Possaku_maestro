@@ -65,14 +65,20 @@ if [ -f "config/env.local.yaml" ]; then
 fi
 
 # Allow environment variables / CI secrets to override or supplement env.yaml
+if [[ "$ENV_ARGS" != *"APP_ID="* ]]; then
+  ENV_ARGS="$ENV_ARGS -e APP_ID=${APP_ID:-com.cloudiex.possaku}"
+fi
 if [ -n "$PHONE_NUMBER" ] && [[ "$ENV_ARGS" != *"PHONE_NUMBER="* ]]; then
   ENV_ARGS="$ENV_ARGS -e PHONE_NUMBER=$PHONE_NUMBER"
 fi
 if [ -n "$PIN" ] && [[ "$ENV_ARGS" != *"PIN="* ]]; then
   ENV_ARGS="$ENV_ARGS -e PIN=$PIN"
 fi
-if [ -n "$APP_ID" ] && [[ "$ENV_ARGS" != *"APP_ID="* ]]; then
-  ENV_ARGS="$ENV_ARGS -e APP_ID=$APP_ID"
+if [ -n "$INVALID_PHONE" ] && [[ "$ENV_ARGS" != *"INVALID_PHONE="* ]]; then
+  ENV_ARGS="$ENV_ARGS -e INVALID_PHONE=$INVALID_PHONE"
+fi
+if [ -n "$INVALID_PIN" ] && [[ "$ENV_ARGS" != *"INVALID_PIN="* ]]; then
+  ENV_ARGS="$ENV_ARGS -e INVALID_PIN=$INVALID_PIN"
 fi
 
 # Support optional custom target: ./run_suite.sh [target_directory_or_flow] [output_report]

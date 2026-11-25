@@ -174,6 +174,12 @@ jobs:
           APK_URL: ${{ inputs.apk_url }}
           APK_PATH: ${{ inputs.apk_path }}
           TARGET_FLOW: ${{ inputs.target_flow }}
+          APP_ID: "com.cloudiex.possaku"
+          PHONE_NUMBER: ${{ secrets.POSSAKU_PHONE_NUMBER }}
+          PIN: ${{ secrets.POSSAKU_PIN }}
+          INVALID_PHONE: "085672222335"
+          INVALID_PIN: "111222"
+          INACTIVE_PHONE: "0856633633"
         with:
           api-level: 30
           target: google_apis

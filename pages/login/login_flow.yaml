@@ -5,33 +5,33 @@ appId: com.cloudiex.possaku
 
 - launchApp:
     clearState: true
-- runScript:
-    file: ../../pages/delay.js
+# Wait for app initial screen to appear
+- extendedWaitUntil:
+    visible: ".*Masuk.*|.*Lewati.*|.*Mengerti.*|.*\\+62.*"
+    timeout: 20000
+
+# Dismiss initial dialogs or onboarding if present
 - tapOn:
     text: "Mengerti"
     optional: true
-- runScript:
-    file: ../../pages/delay.js
 - tapOn:
     text: "${output.login_page.skipButton}"
     optional: true
 
-- runScript:
-    file: ../../pages/delay.js
+# If on welcome landing screen, tap "Masuk" to navigate to login form
 - runFlow:
-    commands:
-      - tapOn: "${output.login_page.skipButton}"
-      - runScript:
-          file: ../../pages/delay.js
     when:
-      notVisible: "${output.login_page.loginButton}"
-- runFlow:
+      visible: "${output.login_page.loginButton}"
+      notVisible: "${output.login_page.phoneNumberField}"
     commands:
       - tapOn: "${output.login_page.loginButton}"
       - runScript:
           file: ../../pages/delay.js
-    when:
-      notVisible: "${output.login_page.phoneNumberField}"
+
+# Ensure login input fields are ready
+- extendedWaitUntil:
+    visible: "${output.login_page.phoneNumberField}"
+    timeout: 15000
 - tapOn: "${output.login_page.phoneNumberField}"
 - inputText: "${phoneNumber}"
 - pressKey: "enter"

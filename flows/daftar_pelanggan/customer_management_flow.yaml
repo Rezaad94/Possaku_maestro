@@ -97,6 +97,8 @@ tags:
 - tapOn:
     text: "${output.daftar_pelanggan_page.backButton}"
     optional: true
+- back:
+    optional: true
 - assertVisible: "${output.daftar_pelanggan_page.headerTitle}"
 - tapOn:
     point: "${output.daftar_pelanggan_page.toggleDebtSwitchPoint}"

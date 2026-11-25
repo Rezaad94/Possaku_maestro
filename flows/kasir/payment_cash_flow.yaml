@@ -244,11 +244,16 @@ tags:
     point: "540,857"
 - inputText: "2000"
 - pressKey: "enter"
+- hideKeyboard
 - tapOn: "${output.kasir_page.discountApplyButton}"
+- hideKeyboard
 - evalScript: ${output.expectedSubtotal = output.kasir_utils.formatRpRegex(output.cartTotal1)}
 - evalScript: ${output.expectedDiscount = output.kasir_utils.formatRpRegex(2000)}
 - evalScript: ${output.expectedPpn = output.kasir_utils.formatRpRegex((output.cartTotal1 - 2000) * 0.10)}
 - evalScript: ${output.expectedTotalWithDiscPpn = output.kasir_utils.formatRpRegex((output.cartTotal1 - 2000) * 1.10)}
+- extendedWaitUntil:
+    visible: "${output.kasir_page.cartPayButton}"
+    timeout: 5000
 - tapOn: "${output.kasir_page.cartPayButton}"
 - tapOn: "${output.kasir_page.payMethodTunai}"
 - tapOn: "${output.kasir_page.payFinishButton}"

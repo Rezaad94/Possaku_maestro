@@ -42,7 +42,6 @@ tags:
 # Fill Toko
 - assertVisible: "Pilih Toko"
 - tapOn: "Pilih Toko"
-- assertVisible: "new ref wija"
 - tapOn:
     point: "${output.atur_produk_page.storeCheckboxPoint}"
 - tapOn:

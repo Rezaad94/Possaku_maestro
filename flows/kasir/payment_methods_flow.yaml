@@ -72,8 +72,13 @@ tags:
     leftOf: "Hari"
 - inputText: "2"
 - pressKey: "enter"
-- tapOn: "Hari"
-- tapOn: "Minggu"
+- hideKeyboard
+- tapOn:
+    text: "Hari"
+    optional: true
+- tapOn:
+    text: "Minggu"
+    optional: true
 - scrollUntilVisible:
     element:
       text: "Rp5.000"

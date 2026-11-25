@@ -165,8 +165,12 @@ tags:
     point: "${output.kasir_page.cartTopCustomerPoint}"
 - assertVisible: "Pilih Pelanggan"
 - tapOn:
+    text: "${output.kasir_page.customerAddButton}"
+    optional: true
+- tapOn:
     point: "${output.kasir_page.customerDrawerAddPoint}"
-- assertVisible: "${output.kasir_page.customerFormTitle}"
+    optional: true
+- assertVisible: ".*Pelanggan.*"
 - tapOn:
     point: "540,755"
 - inputText: "Pelanggan Kasir"

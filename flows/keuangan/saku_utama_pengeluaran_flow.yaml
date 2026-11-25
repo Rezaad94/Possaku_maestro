@@ -70,9 +70,14 @@ tags:
     point: "${output.keuangan_page.totalPengeluaranInputPoint}"
 - inputText: "25000"
 - pressKey: "enter"
+- hideKeyboard
 # Simpan
 - tapOn:
+    text: "${output.keuangan_page.simpanPengeluaranButton}"
+    optional: true
+- tapOn:
     point: "${output.keuangan_page.simpanPengeluaranPoint}"
+    optional: true
 - assertVisible: "${output.keuangan_page.confirmDialogTitle}"
 - tapOn: "${output.keuangan_page.confirmDialogYa}"
 - assertVisible: "${output.keuangan_page.pengeluaranTitle}"

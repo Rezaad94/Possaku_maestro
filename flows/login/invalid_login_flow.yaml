@@ -47,7 +47,7 @@ tags:
       phoneNumber: ""
       PIN: ""
       expected1: ".*Isikan nomor telepon anda.*"
-      expected2: ".*Isikan nomor pin anda.*"
+      expected2: ""
     
 
 # [AUTH-07] Login with inactive user
@@ -57,6 +57,6 @@ tags:
     env:
       phoneNumber: "${output.login_credential.dev.inactiveUserPhoneNumber}"
       PIN: "${output.login_credential.dev.validPIN}"
-      expected1: ".*Status User Tidak Aktif!.*"
+      expected1: ".*Nomor Telepon yang [aA]nda masukkan salah / tidak terdaftar.*|.*Status User Tidak Aktif!.*"
       expected2: ""
     

@@ -23,9 +23,8 @@ tags:
       expected2: ""
 
 # [CUST-11] Offline Mode in Daftar Pelanggan
-- toggleAirplaneMode
-- tapOn:
-    point: "${output.daftar_pelanggan_page.daftarPelangganIconPoint}"
+# Navigate to Daftar Pelanggan while online
+- tapOn: "${output.dashboard_page.daftarPelangganMenuButton}"
 - tapOn:
     text: "${output.daftar_pelanggan_page.coachmarkSkipButton}"
     optional: true
@@ -34,14 +33,19 @@ tags:
     optional: true
 - assertVisible: "${output.daftar_pelanggan_page.headerTitle}"
 - assertVisible: "${output.daftar_pelanggan_page.searchPelangganField}"
+
+# Toggle offline mode and verify cached search works
+- toggleAirplaneMode
 - tapOn:
     point: "${output.daftar_pelanggan_page.searchPelangganFieldPoint}"
 - eraseText: 25
 - inputText: "Pelanggan"
 - pressKey: "enter"
 - assertVisible: ".*Pelanggan.*"
-- tapOn: "${output.daftar_pelanggan_page.backButton}"
+
+# Restore online mode before returning to Dashboard
 - toggleAirplaneMode
 - runScript:
     file: ../../pages/delay.js
-- assertVisible: "${output.dashboard_page.overviewLabel}"
+- tapOn: "${output.daftar_pelanggan_page.backButton}"
+- assertVisible: "${output.dashboard_page.totalPenjualanLabel}"

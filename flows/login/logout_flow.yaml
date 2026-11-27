@@ -21,6 +21,9 @@ appId: ${APP_ID}
 - tapOn: "${output.dashboard_page.profileIcon}"
 # Dismiss onboarding/prompt if visible
 - tapOn:
+    text: "Mengerti"
+    optional: true
+- tapOn:
     text: "Nanti"
     optional: true
 - tapOn:

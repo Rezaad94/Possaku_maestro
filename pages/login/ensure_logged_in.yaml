@@ -5,7 +5,7 @@ appId: ${APP_ID}
     stopApp: true
 # Wait for EITHER the welcome/login screen OR the main dashboard to appear
 - extendedWaitUntil:
-    visible: ".*Selamat datang.*|.*Masuk.*|.*Lewati.*|.*Mengerti.*|Kasir|Overview"
+    visible: ".*Selamat datang.*|.*Masuk.*|.*Lewati.*|.*Mengerti.*|Kasir|Total Penjualan"
     timeout: 20000
 # Only run the full login flow if the login screen is actually showing
 - runFlow:
@@ -22,4 +22,4 @@ appId: ${APP_ID}
     text: "Mengerti"
     optional: true
 # Confirm we are on the Dashboard (home screen) — works whether we just logged in or were already logged in
-- assertVisible: "Overview"
+- assertVisible: "Total Penjualan"

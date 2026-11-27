@@ -40,12 +40,6 @@ appId: com.cloudiex.possaku
 - inputText: "${PIN}"
 - pressKey: "enter"
 - tapOn: "${output.login_page.submitButton}"
-- runScript:
-    file: ../../pages/delay.js
-- runScript:
-    file: ../../pages/delay.js
-- runScript:
-    file: ../../pages/delay.js
 - runFlow:
     when:
       visible: ".*Masalah koneksi.*"

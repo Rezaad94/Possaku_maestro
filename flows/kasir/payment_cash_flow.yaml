@@ -108,7 +108,7 @@ tags:
 - tapOn:
     below: "Catatan Pesanan"
 - inputText: "Catatan Tunai"
-- pressKey: "enter"
+- tapOn: "Pembayaran"
 
 # [KASIR-33] Pay with exact money
 - scrollUntilVisible:

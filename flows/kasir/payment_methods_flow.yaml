@@ -132,7 +132,7 @@ tags:
 - tapOn:
     below: "Catatan Pesanan"
 - inputText: "Catatan Debit"
-- pressKey: "enter"
+- tapOn: "Pembayaran"
 - scrollUntilVisible:
     element:
       text: "Masukkan Nomor Kartu"

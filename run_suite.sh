@@ -114,6 +114,27 @@ echo "=========================================================="
 rm -rf "$DEBUG_DIR"
 
 # Run Maestro with html format and debug output options
+# Start background watchdog to prevent any test failure from stranding the device in airplane mode
+(
+  AP_COUNT=0
+  while true; do
+    sleep 5
+    AP_STATE=$(adb -s "$DEVICE_TARGET" shell settings get global airplane_mode_on 2>/dev/null | tr -d '\r\n')
+    if [ "$AP_STATE" = "1" ]; then
+      AP_COUNT=$((AP_COUNT + 5))
+      if [ $AP_COUNT -ge 20 ]; then
+        echo "⚠️ Watchdog: Device was left in Airplane Mode for >= 20s. Restoring connectivity..."
+        ensure_online
+        AP_COUNT=0
+      fi
+    else
+      AP_COUNT=0
+    fi
+  done
+) &
+WATCHDOG_PID=$!
+trap "kill $WATCHDOG_PID 2>/dev/null; ensure_online" EXIT INT TERM
+
 maestro test \
   --device "$DEVICE_TARGET" \
   --format html \
@@ -123,6 +144,9 @@ maestro test \
   $SUITE_TARGET
 
 MAESTRO_EXIT_CODE=$?
+
+# Terminate watchdog
+kill $WATCHDOG_PID 2>/dev/null
 
 if [ -f "$OUTPUT_REPORT" ]; then
   echo ""

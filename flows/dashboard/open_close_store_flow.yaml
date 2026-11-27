@@ -39,8 +39,9 @@ tags:
       visible: "${output.dashboard_page.storeStatusLabelTutup}"
     commands:
       - swipe:
-          start: "20%,45%"
-          end: "80%,45%"
+          start: "18%,41%"
+          end: "82%,41%"
+          duration: 800
       - runScript:
           file: ../../pages/delay.js
       - tapOn: "${output.usahaku_page.confirmYesButton}"
@@ -59,8 +60,9 @@ tags:
 
 # [DASH-09] Toggle Store Status to Close via Dashboard Slider
 - swipe:
-    start: "20%,45%"
-    end: "80%,45%"
+    start: "18%,41%"
+    end: "82%,41%"
+    duration: 800
 - runScript:
     file: ../../pages/delay.js
 - tapOn: "${output.usahaku_page.confirmYesButton}"
@@ -78,7 +80,7 @@ tags:
 - tapOn: "${output.kasir_page.kasirMenuButton}"
 - runScript:
     file: ../../pages/delay.js
-- assertVisible: "Konfirmasi"
+- assertVisible: "Konfirmasi.*"
 - assertVisible: "${output.dashboard_page.storeStatusLabelBuka}"
 - assertVisible: "${output.usahaku_page.confirmNoButton}"
 - tapOn: "${output.usahaku_page.confirmNoButton}"
@@ -87,8 +89,9 @@ tags:
 
 # [DASH-12] Toggle Store Status back to Open via Dashboard Slider
 - swipe:
-    start: "20%,45%"
-    end: "80%,45%"
+    start: "18%,41%"
+    end: "82%,41%"
+    duration: 800
 - runScript:
     file: ../../pages/delay.js
 - tapOn: "${output.usahaku_page.confirmYesButton}"

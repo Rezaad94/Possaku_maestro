@@ -32,7 +32,7 @@ tags:
     when:
       visible: "${output.dashboard_page.storeStatusLabelTutup}"
     commands:
-      - tapOn: "Usahaku\nTab 3.*"
+      - tapOn: "${output.usahaku_page.usahakuTab}"
       - runScript:
           file: ../../pages/delay.js
       - tapOn:
@@ -42,14 +42,14 @@ tags:
       - tapOn: "${output.usahaku_page.confirmYesButton}"
       - runScript:
           file: ../../pages/delay.js
-      - tapOn: "Home\nTab 1.*"
+      - tapOn: "${output.dashboard_page.homeTab}"
       - runScript:
           file: ../../pages/delay.js
 
 # Now that the store is guaranteed to be Buka, run the open/close verification sequence:
 
 # [USAHA-01] Navigate to Usahaku Tab
-- tapOn: "Usahaku\nTab 3.*"
+- tapOn: "${output.usahaku_page.usahakuTab}"
 - runScript:
     file: ../../pages/delay.js
 
@@ -63,14 +63,14 @@ tags:
     file: ../../pages/delay.js
 
 # [USAHA-03] Verify Store Status on Home Dashboard is Tutup
-- tapOn: "Home\nTab 1.*"
+- tapOn: "${output.dashboard_page.homeTab}"
 - runScript:
     file: ../../pages/delay.js
 - assertVisible: "${output.dashboard_page.storeStatusLabelTutup}"
 - assertVisible: "${output.dashboard_page.jamOperasionalBukaInfo}"
 
 # [USAHA-04] Navigate back to Usahaku Tab and Toggle Store Status back to Open
-- tapOn: "Usahaku\nTab 3.*"
+- tapOn: "${output.usahaku_page.usahakuTab}"
 - runScript:
     file: ../../pages/delay.js
 - tapOn:
@@ -82,7 +82,7 @@ tags:
     file: ../../pages/delay.js
 
 # [USAHA-05] Verify Store Status on Home Dashboard is Buka again
-- tapOn: "Home\nTab 1.*"
+- tapOn: "${output.dashboard_page.homeTab}"
 - runScript:
     file: ../../pages/delay.js
 - assertVisible: "${output.dashboard_page.storeStatusLabelBuka}"

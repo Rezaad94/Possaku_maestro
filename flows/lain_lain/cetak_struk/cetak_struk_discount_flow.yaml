@@ -52,19 +52,16 @@ tags:
 - tapOn:
     point: "${output.cetak_struk_page.itemEditPencilPoint}"
 - assertVisible: "${output.cetak_struk_page.editProdukTitle}"
-- tapOn:
-    point: "${output.cetak_struk_page.diskonNominalPoint}"
+- tapOn: "${output.cetak_struk_page.diskonNominalChip}"
 - tapOn:
     point: "${output.cetak_struk_page.diskonJumlahInputPoint}"
 - tapOn:
     point: "540,1487"
 - inputText: "5000"
 - pressKey: "enter"
-- tapOn:
-    text: "Terapkan"
-    optional: true
+- tapOn: "Terapkan"
 - assertVisible: "${output.cetak_struk_page.headerTitle}"
-- assertVisible: "Rp15.000"
+- assertVisible: ".*Rp15.000.*"
 
 # [STRUK-09] Edit added product (Quantity In-Cart)
 - tapOn:
@@ -81,18 +78,15 @@ tags:
 - tapOn:
     point: "${output.cetak_struk_page.itemEditPencilPoint}"
 - assertVisible: "${output.cetak_struk_page.editProdukTitle}"
+- tapOn: "${output.cetak_struk_page.diskonPersenChip}"
 - tapOn:
-    point: "${output.cetak_struk_page.diskonPersenPoint}"
-- tapOn:
-    point: "${output.cetak_struk_page.diskonJumlahInputPoint}"
+    point: "540,1040"
 - tapOn:
     point: "540,1487"
 - eraseText: 5
 - inputText: "10"
 - pressKey: "enter"
-- tapOn:
-    text: "Terapkan"
-    optional: true
+- tapOn: "Terapkan"
 - assertVisible: "${output.cetak_struk_page.headerTitle}"
 
 # [STRUK-11] Transaction discount nominal & [STRUK-12] Transaction discount percent rollup

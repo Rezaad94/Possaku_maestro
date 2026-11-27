@@ -19,14 +19,24 @@ appId: ${APP_ID}
 # [AUTH-08] Logout from active session
 # Navigate to Profil tab (bottom nav Tab 4)
 - tapOn: "${output.dashboard_page.profileIcon}"
-# Tap Logout button on the profile screen
+# Dismiss onboarding/prompt if visible
 - tapOn:
-    text: "Logout"
-    optional: false
-# Confirm logout dialog if it appears
-- tapOn:
-    text: "Ya"
+    text: "Nanti"
     optional: true
+- tapOn:
+    text: "Tutup"
+    optional: true
+# Open Pengaturan Lanjutan
+- scrollUntilVisible:
+    element:
+      text: "Pengaturan Lanjutan"
+    direction: DOWN
+- tapOn: "Pengaturan Lanjutan"
+# Tap Keluar
+- tapOn: "Keluar"
+# Confirm logout dialog
+- assertVisible: "Konfirmasi.*"
+- tapOn: "Ya"
 # Verify we are back at the login screen
 - assertVisible: "${output.login_page.loginButton}"
 

@@ -36,7 +36,7 @@ tags:
             visible: ".*berhasil diperbarui.*"
           commands:
             - tapOn:
-                point: "540,1160"
+                point: "500,450"
       - runFlow:
           when:
             visible: "Atur Pajak"
@@ -69,9 +69,16 @@ tags:
     point: "${output.kasir_page.cartTopCustomerPoint}"
 - assertVisible: "Pilih Pelanggan"
 - tapOn:
-    text: ".*Pelanggan Baru.*"
-    index: 0
-    point: "90%,50%"
+    point: "880, 950"
+- tapOn:
+    point: "880, 1220"
+- runFlow:
+    when:
+      visible: "Pilih Pelanggan"
+    commands:
+      - tapOn:
+          point: "880, 1220"
+- assertVisible: "Keranjang"
 - copyTextFrom:
     text: "Rp[0-9.]+"
     rightOf: "Total"
@@ -101,7 +108,7 @@ tags:
 - tapOn:
     below: "Catatan Pesanan"
 - inputText: "Catatan Tunai"
-- hideKeyboard
+- pressKey: "enter"
 
 # [KASIR-33] Pay with exact money
 - scrollUntilVisible:
@@ -111,9 +118,13 @@ tags:
     visibilityPercentage: 50
 - tapOn: "${output.kasir_page.payExactCashButton}"
 - tapOn: "${output.kasir_page.payFinishButton}"
-- tapOn:
-    text: "Ya"
-    optional: true
+- extendedWaitUntil:
+    visible: "Ya"
+    timeout: 5000
+- tapOn: "Ya"
+- extendedWaitUntil:
+    visible: "Selamat.*"
+    timeout: 10000
 - assertVisible: "Selamat.*"
 
 # [KASIR-35] User see correct data in struck
@@ -161,9 +172,13 @@ tags:
 - scroll
 - tapOn: "${output.kasir_page.payExcessCashButton}"
 - tapOn: "${output.kasir_page.payFinishButton}"
-- tapOn:
-    text: "Ya"
-    optional: true
+- extendedWaitUntil:
+    visible: "Ya"
+    timeout: 5000
+- tapOn: "Ya"
+- extendedWaitUntil:
+    visible: "Selamat.*"
+    timeout: 10000
 - assertVisible: "Selamat.*"
 - tapOn: "Lihat Nota"
 - assertVisible: "${output.kasir_page.receiptTitle}"
@@ -182,7 +197,8 @@ tags:
 - assertVisible: "Kasir"
 
 # [KASIR-35b] Verify Nota with Pelanggan, Diskon, PPN, Payment Method, and Total
-- back
+- tapOn:
+    point: "${output.kasir_page.kasirBackButtonPoint}"
 - assertVisible: ".*Selamat datang.*"
 - tapOn: "${output.kasir_page.usahakuTabButton}"
 - runFlow:
@@ -204,7 +220,7 @@ tags:
             visible: ".*berhasil diperbarui.*"
           commands:
             - tapOn:
-                point: "540,1160"
+                point: "500,450"
       - runFlow:
           when:
             visible: "Atur Pajak"
@@ -231,22 +247,24 @@ tags:
     point: "${output.kasir_page.cartTopCustomerPoint}"
 - assertVisible: "Pilih Pelanggan"
 - tapOn:
-    text: ".*Pelanggan Baru.*"
-    index: 0
-    point: "90%,50%"
+    point: "880, 950"
+- tapOn:
+    point: "880, 1220"
+- runFlow:
+    when:
+      visible: "Pilih Pelanggan"
+    commands:
+      - tapOn:
+          point: "880, 1220"
+- assertVisible: "Keranjang"
 - tapOn:
     point: "${output.kasir_page.cartBottomDiscountPoint}"
 - tapOn: "${output.kasir_page.discountTabDiskon}"
 - tapOn: "${output.kasir_page.discountNominalButton}"
 - tapOn:
     point: "${output.kasir_page.discountInputPoint}"
-- tapOn:
-    point: "540,857"
 - inputText: "2000"
-- pressKey: "enter"
-- hideKeyboard
 - tapOn: "${output.kasir_page.discountApplyButton}"
-- hideKeyboard
 - evalScript: ${output.expectedSubtotal = output.kasir_utils.formatRpRegex(output.cartTotal1)}
 - evalScript: ${output.expectedDiscount = output.kasir_utils.formatRpRegex(2000)}
 - evalScript: ${output.expectedPpn = output.kasir_utils.formatRpRegex((output.cartTotal1 - 2000) * 0.10)}
@@ -257,9 +275,13 @@ tags:
 - tapOn: "${output.kasir_page.cartPayButton}"
 - tapOn: "${output.kasir_page.payMethodTunai}"
 - tapOn: "${output.kasir_page.payFinishButton}"
-- tapOn:
-    text: "Ya"
-    optional: true
+- extendedWaitUntil:
+    visible: "Ya"
+    timeout: 5000
+- tapOn: "Ya"
+- extendedWaitUntil:
+    visible: "Selamat.*"
+    timeout: 10000
 - assertVisible: "Selamat.*"
 - tapOn: "Lihat Nota"
 - assertVisible: "${output.kasir_page.receiptTitle}"
@@ -298,7 +320,7 @@ tags:
             visible: ".*berhasil diperbarui.*"
           commands:
             - tapOn:
-                point: "540,1160"
+                point: "500,450"
       - runFlow:
           when:
             visible: "Atur Pajak"

@@ -50,6 +50,37 @@ tags:
 
 # Verify on Daftar Karyawan screen
 - assertVisible: "${output.daftar_karyawan_page.daftarKaryawanTitle}"
+- tapOn:
+    text: "Lewati"
+    optional: true
+- tapOn:
+    text: "Selesai"
+    optional: true
+
+# Ensure test employee "uaua" exists
+- runFlow:
+    when:
+      notVisible: ".*uaua.*"
+    commands:
+      - tapOn:
+          point: "${output.daftar_karyawan_page.addEmployeeFabPoint}"
+      - tapOn:
+          point: "${output.daftar_karyawan_page.inputNamaPoint}"
+      - inputText: "uaua"
+      - back
+      - tapOn:
+          point: "${output.daftar_karyawan_page.inputPhonePoint}"
+      - inputText: "081233344455"
+      - back
+      - tapOn:
+          point: "${output.daftar_karyawan_page.saveEmployeeBtnPoint}"
+      - tapOn: "${output.daftar_karyawan_page.confirmYaText}"
+      - tapOn:
+          text: "${output.daftar_karyawan_page.backToHomeSuccessBtnText}"
+          optional: true
+      - tapOn:
+          point: "${output.daftar_karyawan_page.kembaliBtnPoint}"
+          optional: true
 
 # Select configured employee "uaua"
 - tapOn: ".*uaua.*"

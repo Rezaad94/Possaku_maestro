@@ -82,4 +82,4 @@ tags:
 # Return to Usahaku overview
 - tapOn:
     point: "${output.usahaku_page.kembaliBtnPoint}"
-- assertVisible: "${output.usahaku_page.usahakuTab}"
+- assertVisible: "${output.usahaku_page.usahakuHeader}"

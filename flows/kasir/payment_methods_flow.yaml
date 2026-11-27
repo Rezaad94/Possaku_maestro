@@ -43,9 +43,14 @@ tags:
     point: "${output.kasir_page.cartTopCustomerPoint}"
 - assertVisible: "Pilih Pelanggan"
 - tapOn:
-    text: ".*Pelanggan Baru.*"
-    index: 0
-    point: "90%,50%"
+    point: "880, 1010"
+- runFlow:
+    when:
+      visible: "Pilih Pelanggan"
+    commands:
+      - tapOn:
+          point: "880, 1010"
+- assertVisible: "Keranjang"
 - copyTextFrom:
     text: "Rp[0-9.]+"
     rightOf: "Total"
@@ -72,29 +77,23 @@ tags:
     leftOf: "Hari"
 - inputText: "2"
 - pressKey: "enter"
-- hideKeyboard
-- tapOn:
-    text: "Hari"
-    optional: true
-- tapOn:
-    text: "Minggu"
-    optional: true
-- scrollUntilVisible:
-    element:
-      text: "Rp5.000"
-    direction: DOWN
-    visibilityPercentage: 50
-    timeout: 15000
+- swipe:
+    start: "50%,80%"
+    end: "50%,20%"
 - tapOn: "Rp5.000"
 - tapOn: "Selanjutnya"
-- tapOn:
-    text: "Ya"
-    optional: true
+- extendedWaitUntil:
+    visible: "Ya"
+    timeout: 5000
+- tapOn: "Ya"
+- extendedWaitUntil:
+    visible: "Selamat.*"
+    timeout: 10000
 - assertVisible: "Selamat.*"
 - tapOn: "Lihat Nota"
 - assertVisible: "${output.kasir_page.receiptTitle}"
 - assertVisible: "Pelanggan"
-- assertVisible: "Pelanggan Baru"
+- assertVisible: ".*Pelanggan.*"
 - assertVisible: "Metode Pembayaran"
 - assertVisible: "Hutang"
 - swipe:

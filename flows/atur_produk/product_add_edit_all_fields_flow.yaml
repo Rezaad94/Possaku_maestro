@@ -31,6 +31,7 @@ tags:
     text: "Selesai"
     optional: true
 - assertVisible: "${output.atur_produk_page.headerTitle}"
+- assertVisible: "${output.atur_produk_page.categorySemuaRegex}"
 
 # [PROD-30] Add new product with all fields filled
 - tapOn:
@@ -111,11 +112,24 @@ tags:
 # Post-Creation Success Screen
 - assertVisible: "${output.atur_produk_page.successModalTitle}"
 - tapOn: "${output.atur_produk_page.keHalamanBerandaButton}"
-- assertVisible: "${output.dashboard_page.overviewLabel}"
+- assertVisible: "${output.dashboard_page.totalPenjualanLabel}"
 
 # Re-enter Atur Produk to verify created product
 - tapOn: "${output.dashboard_page.aturProdukMenuButton}"
+- tapOn:
+    text: "Lewati"
+    optional: true
+- tapOn:
+    text: "Selesai"
+    optional: true
 - assertVisible: "${output.atur_produk_page.headerTitle}"
+- assertVisible: "${output.atur_produk_page.categorySemuaRegex}"
+- scrollUntilVisible:
+    element:
+      text: ".*Kopi Luwak Premium.*"
+    direction: DOWN
+    visibilityPercentage: 50
+    timeout: 10000
 - assertVisible: ".*Kopi Luwak Premium.*"
 
 # [PROD-31] Edit product with all fields updated
@@ -140,6 +154,12 @@ tags:
 - assertVisible: "Konfirmasi.*"
 - tapOn: "Ya"
 - assertVisible: "${output.atur_produk_page.headerTitle}"
+- scrollUntilVisible:
+    element:
+      text: ".*Kopi Luwak Istimewa.*"
+    direction: DOWN
+    visibilityPercentage: 50
+    timeout: 10000
 - assertVisible: ".*Kopi Luwak Istimewa.*"
 
 # [PROD-32] Clean up (Delete edited test product)
@@ -155,4 +175,4 @@ tags:
 
 # [PROD-33] Return to Dashboard from Atur Produk
 - tapOn: "${output.atur_produk_page.backButton}"
-- assertVisible: "${output.dashboard_page.overviewLabel}"
+- assertVisible: "${output.dashboard_page.totalPenjualanLabel}"

@@ -66,4 +66,4 @@ tags:
 - tapOn: "${output.usahaku_page.simpanTagBtn}"
 
 # Return to Usahaku overview
-- assertVisible: "${output.usahaku_page.usahakuTab}"
+- assertVisible: "${output.usahaku_page.usahakuHeader}"

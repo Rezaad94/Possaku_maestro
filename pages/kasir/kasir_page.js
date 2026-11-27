@@ -1,6 +1,7 @@
 output.kasir_page = {
   // Navigation / Dashboard
   kasirMenuButton: "Kasir\\n.*",
+  kasirBackButtonPoint: "73,136",
 
   // Catalog / Products
   searchIconPoint: "848,270", // Tap to open search bar
@@ -75,6 +76,8 @@ output.kasir_page = {
   customerSearchField: "Cari pelanggan",
   customerAddButton: "Tambah Pelanggan Baru",
   customerDrawerAddPoint: "996,660",
+  customerRowPilihPoint: "920,1220",
+  customerFirstRowPilihPoint: "880,800",
   customerFormTitle: "Buat Pelanggan",
 
   // Queue / Booked (BO)

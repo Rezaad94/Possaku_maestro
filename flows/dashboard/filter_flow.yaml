@@ -34,9 +34,18 @@ tags:
 - assertVisible: "${output.dashboard_page.filterHeaderLabel}"
 - assertVisible: "${output.dashboard_page.filterOptionHariIni}"
 - assertVisible: "${output.dashboard_page.filterOptionMingguIni}"
+- swipe:
+    start: "85%,25%"
+    end: "15%,25%"
 - assertVisible: "${output.dashboard_page.filterOptionBulanIni}"
 
-# Select "Hari ini" option to dismiss/close the filter dropdown
+# Swipe back and select "Hari ini" option to dismiss/close the filter dropdown
+- swipe:
+    start: "15%,25%"
+    end: "85%,25%"
 - tapOn: "${output.dashboard_page.filterOptionHariIni}"
+- tapOn:
+    text: "Terapkan Filter"
+    optional: true
 - runScript:
     file: ../../pages/delay.js

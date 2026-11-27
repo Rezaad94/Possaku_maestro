@@ -83,21 +83,24 @@ tags:
     point: "${output.daftar_pelanggan_page.toggleDebtSwitchPoint}"
 - assertVisible: ".*Hutang.*"
 - tapOn:
-    text: ".*Pelanggan Baru.*"
+    text: ".*Hutang\\nRp[1-9].*|.*Pelanggan Baru.*"
     optional: true
 - tapOn:
     text: "${output.daftar_pelanggan_page.hapusPelangganButton}"
     optional: true
-- assertVisible:
-    text: "${output.daftar_pelanggan_page.alertHutangTerlebihDahulu}"
-    optional: true
-- tapOn:
-    point: "540, 1200"
-    optional: true
+- runFlow:
+    when:
+      visible: "${output.daftar_pelanggan_page.alertHutangTerlebihDahulu}"
+    commands:
+      - tapOn:
+          point: "500, 450"
+- runFlow:
+    when:
+      visible: "Konfirmasi.*"
+    commands:
+      - tapOn: "Tidak"
 - tapOn:
     text: "${output.daftar_pelanggan_page.backButton}"
-    optional: true
-- back:
     optional: true
 - assertVisible: "${output.daftar_pelanggan_page.headerTitle}"
 - tapOn:

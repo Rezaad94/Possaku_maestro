@@ -53,12 +53,12 @@ tags:
 - tapOn: "Ya"
 - assertVisible: ".*Berhasil disimpan.*"
 - tapOn:
-    point: "540,1150"
+    point: "500,450"
 - assertVisible: "${output.atur_produk_page.categoryListTitle}"
+
+# [PROD-18] Return to Atur Produk and Dashboard
 - tapOn: "${output.atur_produk_page.backButton}"
 - assertVisible: "${output.atur_produk_page.headerTitle}"
-
-# [PROD-18] Return to Dashboard
 - tapOn: "${output.atur_produk_page.backButton}"
 - assertVisible: "${output.dashboard_page.overviewLabel}"
 

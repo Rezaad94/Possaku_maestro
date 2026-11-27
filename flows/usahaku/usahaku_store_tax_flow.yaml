@@ -54,15 +54,16 @@ tags:
 # Save Tax Settings
 - tapOn: "${output.usahaku_page.simpanBtn}"
 
-# Verify Success Dialog
+# Dismiss Success Dialog (tap scrim outside dialog card)
 - extendedWaitUntil:
     visible: "${output.usahaku_page.pajakSuccessDialog}"
     timeout: 5000
+- tapOn:
+    point: "500, 450"
 
-# Dismiss dialog
-- tapOn: "${output.usahaku_page.tutupBtn}"
-- back:
-    optional: true
+# Return to Usahaku screen
+- tapOn:
+    point: "73, 136"
 
 # Verify tax updated on Usahaku Screen
 - assertVisible: "${output.usahaku_page.pajakCard}"
@@ -78,13 +79,14 @@ tags:
 # Save Tax Settings
 - tapOn: "${output.usahaku_page.simpanBtn}"
 
-# Dismiss Success Dialog
+# Dismiss Success Dialog (tap scrim outside dialog card)
 - extendedWaitUntil:
     visible: "${output.usahaku_page.pajakSuccessDialog}"
     timeout: 5000
-- tapOn: "${output.usahaku_page.tutupBtn}"
-- back:
-    optional: true
+- tapOn:
+    point: "500, 450"
 
 # Return to Usahaku overview
-- assertVisible: "${output.usahaku_page.usahakuTab}"
+- tapOn:
+    point: "73, 136"
+- assertVisible: "${output.usahaku_page.usahakuHeader}"

@@ -1,6 +1,6 @@
 output.usahaku_page = {
   // Navigation & Screen Header
-  usahakuTab: "Usahaku",
+  usahakuTab: "Usahaku\\n.*",
   usahakuHeader: "Usahaku",
   homeTab: "Home\nTab 1.*",
 

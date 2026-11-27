@@ -44,7 +44,7 @@ tags:
             visible: ".*berhasil diperbarui.*"
           commands:
             - tapOn:
-                point: "540,1160"
+                point: "500,450"
       - runFlow:
           when:
             visible: "Atur Pajak"
@@ -73,7 +73,7 @@ tags:
 - tapOn: "Kembali"
 - assertVisible: "Kasir"
 - tapOn:
-    point: "7%,7%"
+    point: "${output.kasir_page.kasirBackButtonPoint}"
 - assertVisible: ".*Selamat datang.*"
 - tapOn: "${output.kasir_page.usahakuTabButton}"
 - runFlow:
@@ -90,7 +90,7 @@ tags:
             visible: ".*berhasil diperbarui.*"
           commands:
             - tapOn:
-                point: "540,1160"
+                point: "500,450"
       - runFlow:
           when:
             visible: "Atur Pajak"
@@ -243,10 +243,7 @@ tags:
 - tapOn: "${output.kasir_page.discountNominalButton}"
 - tapOn:
     point: "${output.kasir_page.discountInputPoint}"
-- tapOn:
-    point: "540,857"
 - inputText: "2000"
-- pressKey: "enter"
 - tapOn: "${output.kasir_page.discountApplyButton}"
 - evalScript: ${output.expectedNomDisc = output.kasir_utils.formatRpRegex(2000)}
 - assertVisible: "Diskon ${output.expectedNomDisc}"
@@ -261,10 +258,7 @@ tags:
 - tapOn: "${output.kasir_page.discountPersenButton}"
 - tapOn:
     point: "${output.kasir_page.discountInputPoint}"
-- tapOn:
-    point: "540,857"
 - inputText: "5"
-- pressKey: "enter"
 - tapOn: "${output.kasir_page.discountApplyButton}"
 - assertVisible: "Diskon.*"
 - tapOn:

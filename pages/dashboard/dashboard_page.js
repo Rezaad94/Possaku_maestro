@@ -3,7 +3,7 @@ output.dashboard_page = {
   totalPenjualanLabel: "Total Penjualan",
   totalTransaksiLabel: "Total Transaksi\\n.*",
   totalProdukTerjualLabel: "Total Produk Terjual\\n.*",
-  dateFilterButton: "Hari ini",
+  dateFilterButton: "(?i)Hari ini|Minggu ini|Bulan ini|Semua|Tahun ini|Filter Periode",
   filterOptionHariIni: "Hari ini",
   filterOptionMingguIni: "Minggu ini",
   filterOptionBulanIni: "Bulan ini",

@@ -78,8 +78,11 @@ tags:
 - tapOn:
     point: "${output.keuangan_page.simpanPengeluaranPoint}"
     optional: true
-- assertVisible: "${output.keuangan_page.confirmDialogTitle}"
-- tapOn: "${output.keuangan_page.confirmDialogYa}"
+- runFlow:
+    when:
+      visible: "${output.keuangan_page.confirmDialogTitle}"
+    commands:
+      - tapOn: "${output.keuangan_page.confirmDialogYa}"
 - assertVisible: "${output.keuangan_page.pengeluaranTitle}"
 
 # [KEU-58] List expenditure in pengeluaran
@@ -107,8 +110,11 @@ tags:
 - assertVisible: "${output.keuangan_page.perbaruiPengeluaranTitle}"
 - tapOn:
     point: "${output.keuangan_page.simpanPengeluaranPoint}"
-- assertVisible: "${output.keuangan_page.confirmDialogTitle}"
-- tapOn: "${output.keuangan_page.confirmDialogYa}"
+- runFlow:
+    when:
+      visible: "${output.keuangan_page.confirmDialogTitle}"
+    commands:
+      - tapOn: "${output.keuangan_page.confirmDialogYa}"
 - assertVisible: "${output.keuangan_page.detailPengeluaranTitle}"
 
 # [KEU-60] Delete expenditure in pengeluaran

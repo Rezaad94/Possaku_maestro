@@ -9,7 +9,7 @@ output.atur_produk_page = {
   searchFieldHint: "Ketik untuk mencari produk",
   searchEmptyHint: "Produk tidak ditemukan",
   searchCloseButton: "Tutup",
-  fabAddPoint: "950,1660",
+  fabAddPoint: "962,1676",
 
   // Category Tabs
   categorySemuaRegex: "Semua \\(\\d+\\)",

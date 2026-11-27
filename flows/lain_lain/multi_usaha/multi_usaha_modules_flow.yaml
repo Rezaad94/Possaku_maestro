@@ -135,36 +135,38 @@ tags:
     point: "858, 1206"
 - runScript:
     file: ../../../pages/delay.js
-- assertVisible: ".*Daftar Karyawan.*"
 - tapOn:
-    point: "73, 136"
+    text: "Lewati"
+    optional: true
+- tapOn:
+    text: "Selesai"
+    optional: true
+- assertVisible: ".*Daftar Karyawan.*"
+- tapOn: "Kembali"
 - runScript:
     file: ../../../pages/delay.js
-- assertVisible: "${output.dashboard_page.overviewLabel}"
+- assertVisible: "${output.dashboard_page.totalPenjualanLabel}"
 
 # [MULTI-09] Daftar Pelanggan for Branch Store (from Home Operasional Grid)
 - tapOn:
-    point: "876, 1164"
+    point: "876, 1030"
 - runScript:
     file: ../../../pages/delay.js
-- assertVisible: ".*Daftar Pelanggan.*"
 - tapOn:
-    point: "73, 136"
-- runScript:
-    file: ../../../pages/delay.js
-- assertVisible: "${output.dashboard_page.overviewLabel}"
-
-# Return to Home
-- tapOn:
-    point: "135, 1705"
+    text: "Lewati"
     optional: true
+- tapOn:
+    text: "Selesai"
+    optional: true
+- assertVisible: ".*Daftar Pelanggan.*"
+- tapOn: "Kembali"
 - runScript:
     file: ../../../pages/delay.js
+- assertVisible: "${output.dashboard_page.totalPenjualanLabel}"
 
 # [MULTI-10] Pengaturan Usaha for Branch Store
 # Switch to Usahaku (Tab 3)
-- tapOn:
-    point: "675, 1705"
+- tapOn: "${output.dashboard_page.usahakuTab}"
 - runScript:
     file: ../../../pages/delay.js
 - assertVisible: ".*Usahaku.*|.*Informasi Usaha.*"
@@ -183,8 +185,7 @@ tags:
     file: ../../../pages/delay.js
 
 # Return to Home/Beranda
-- tapOn:
-    point: "135, 1705"
+- tapOn: "${output.dashboard_page.homeTab}"
 - runScript:
     file: ../../../pages/delay.js
-- assertVisible: "${output.dashboard_page.overviewLabel}"
+- assertVisible: "${output.dashboard_page.totalPenjualanLabel}"

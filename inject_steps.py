@@ -139,6 +139,21 @@ def format_duration(ms):
 
 def find_commands_json(debug_dir, clean_flow_name):
     clean_target = clean_flow_name.lower().replace("-", "_")
+    # First pass: EXACT match
+    for root, dirs, files in os.walk(debug_dir):
+        if "commands.json" in files:
+            parent_dir = os.path.basename(root).lower().replace("-", "_")
+            if parent_dir == clean_target:
+                return os.path.join(root, "commands.json")
+        for f in files:
+            if f.startswith("commands-") and f.endswith(".json"):
+                f_clean = f.lower().replace("-", "_")
+                # e.g., commands-flow_name.json
+                base_name = f_clean.replace("commands_", "").replace(".json", "")
+                if base_name == clean_target:
+                    return os.path.join(root, f)
+
+    # Second pass: fallback to substring match if exact not found
     for root, dirs, files in os.walk(debug_dir):
         if "commands.json" in files:
             parent_dir = os.path.basename(root).lower().replace("-", "_")
@@ -154,9 +169,13 @@ def find_commands_json(debug_dir, clean_flow_name):
 
 def find_source_yaml(clean_flow_name):
     target = f"{clean_flow_name}.yaml"
+    # First pass: EXACT file name match
     for root, dirs, files in os.walk("flows"):
         if target in files:
             return os.path.join(root, target)
+
+    # Second pass: fallback if exact not found
+    for root, dirs, files in os.walk("flows"):
         for f in files:
             if f.endswith(".yaml") and clean_flow_name in f:
                 return os.path.join(root, f)

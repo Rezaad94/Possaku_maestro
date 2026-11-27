@@ -60,16 +60,20 @@ tags:
 - inputText: "Produk Single Test"
 - pressKey: "enter"
 - swipe:
-    start: "50%,80%"
-    end: "50%,20%"
+    start: "50%,75%"
+    end: "50%,25%"
 - assertVisible: "${output.atur_produk_page.hargaJualLabel}"
-- assertVisible: "${output.atur_produk_page.hargaModalLabel}"
 - swipe:
-    start: "50%,80%"
-    end: "50%,20%"
+    start: "50%,75%"
+    end: "50%,35%"
+- assertVisible: "${output.atur_produk_page.hargaModalLabel}"
 - assertVisible: "${output.atur_produk_page.kodeBarcodeLabel}"
 
 # [PROD-27] Add product with wholesale price (harga grosir)
+- assertVisible: "Harga Grosir"
+- swipe:
+    start: "50%,75%"
+    end: "50%,35%"
 - assertVisible: "${output.atur_produk_page.wholesalePriceCheckbox}"
 - tapOn:
     point: "95,1242"
@@ -77,8 +81,7 @@ tags:
 
 # [PROD-28] Add product with multiple varian
 - assertVisible: "${output.atur_produk_page.addVariantButton}"
-- tapOn:
-    point: "900,1450"
+- tapOn: "${output.atur_produk_page.addVariantButton}"
 - assertVisible: "Varian Produk"
 - assertVisible: "Nama Varian"
 - assertVisible: "Harga dan Stok Varian"
